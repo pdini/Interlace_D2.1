@@ -1,0 +1,200 @@
+%------------------------------------------------------------------------
+% TeX and LaTeX macros
+%------------------------------------------------------------------------
+%
+% In math formulas we use italic instead of mathitalic
+%
+\makeatletter
+% ~ gives a \; space in math mode
+\def~{\ifmmode\;\else\penalty\@M\ \fi}
+%  Italic in mathematical formulas
+\def\@setmcodes#1#2#3{{\count0=#1 \count1=#3
+  \loop \global\mathcode\count0=\count1 \ifnum \count0<#2
+  \advance\count0 by1 \advance\count1 by1 \repeat}}
+\DeclareSymbolFont{italic}{OT1}{\rmdefault}{m}{it}
+\let\mathit\undefined
+\DeclareSymbolFontAlphabet{\mathit}{italic}
+\edef\@tempa{\hexnumber@\symitalic}
+\@setmcodes{`A}{`Z}{"7\@tempa41}
+\@setmcodes{`a}{`z}{"7\@tempa61}
+\makeatother
+%
+% \begin{asm} ... \end{asm}
+%
+\newdimen\asmindent     
+\asmindent=\parindent
+\newcount\asmi
+\def\inc{\global\advance\asmi by 1}
+\def\dec{\global\advance\asmi by-1}
+\def\nl{{}$\par\hangindent\asmi em
+  \noindent\kern\asmi em\ignorespaces$} 
+\def\asmskip{{}$\par\smallskip\hangindent\asmi em
+  \noindent\kern\asmi em\ignorespaces$} 
+\def\asm{\global\asmi=0 
+%%%%%%%%%%%%%% added by Paolo:
+\parskip=0pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \def\+{\inc\nl}
+ \def\-{\dec\nl}
+ \def\\{\nl}
+ \begin{trivlist}
+ \item[]\leftskip=\asmindent\relax$}
+\def\endasm{$
+\end{trivlist}}
+%\mathindent=\asmindent
+%
+% \begin{asmarray}
+%    f(s_1) & := t_1 \\
+%    f(s_2) & := t_2 
+% \end{asmarray}
+%
+\def\asmarray{\begin{array}[t]{@{}l@{\;}l@{\;}l@{}}}
+\def\endasmarray{\end{array}}
+%
+%
+%
+\def\asmcomment#1{\quad\hbox{// #1}}
+%
+%  \begin{subasm} ... \end{subasm}
+%
+\newcount\asmii
+\def\subasm{\vtop\bgroup\asmii=0\normalbaselines
+ \def\nl##1{$\egroup\advance\asmii by##1\relax\hbox\bgroup\hskip\asmii em$}
+ \def\\{\nl{0}}
+ \def\+{\nl{1}}
+ \def\-{\nl{-1}}
+ \hbox\bgroup\hskip\asmii em$}
+\def\endsubasm{$\egroup\egroup}
+%
+% Keywords in ASM code
+%
+\def\ASM#1{\hbox{\sc#1}}        % rule names and macros
+\def\ASMIND#1{\ASM{#1}\index{#1@{\sc#1}}}
+\def\AWAIT   {\mathrel{\mathbf{await}}}
+\def\AND     {\mathrel{\mathbf{and}}}
+\def\CASE    {\mathrel{\mathbf{case}}}
+\def\CHOOSE  {\mathrel{\mathbf{choose}}}
+\def\CREATE  {\mathrel{\mathbf{create}}}
+\def\NEW  {\mathrel{\mathbf{new}}}
+\def\DO      {\mathrel{\mathbf{do}}}
+\def\ELSE    {\mathrel{\mathbf{else}}}
+\def\ELSEIF  {\mathrel{\mathbf{elseif}}}
+\def\FORALL  {\mathrel{\mathbf{forall}}}
+\def\FORSOME  {\mathrel{\mathbf{forsome}}}
+\def\FOREACH  {\mathrel{\mathbf{foreach}}}
+\def\IF      {\mathrel{\mathbf{if}}}
+\def\IMPORT  {\mathrel{\mathbf{import}}}
+\def\IN      {\mathrel{\mathbf{in}}}
+\def\LET     {\mathrel{\mathbf{let}}}
+\def\SELF    {\mathrel{\mathbf{self}}}
+\def\MATCH    {\mathrel{\textbf{match}}}
+\def\NOT     {\mathrel{\mathbf{not}}}
+\def\OF      {\mathrel{\mathbf{of}}}
+\def\OR      {\mathrel{\mathbf{or}}}
+\def\PAR     {\mathrel{\mathbf{par}}}
+\def\SEQ     {\mathrel{\mathbf{seq}}}
+\def\SKIP    {\mathrel{\mathbf{skip}}}
+\def\THEN    {\mathrel{\mathbf{then}}}
+\def\WHERE   {\mathrel{\mathbf{where}}}
+\def\WHILE   {\mathrel{\mathbf{while}}}
+\def\UNDEF   {\mathrel{\mathbf{undef}}}
+\def\UNTIL   {\mathrel{\mathbf{until}}}
+\def\WHEN   {\mathrel{\mathbf{when}}}
+\def\WITH    {\mathrel{\mathbf{with}}}
+\def\STEP    {\mathrel{\mathbf{step}}}
+\def\STEPWISE    {\mathrel{\mathbf{stepwise}}}
+\def\SEQ    {\mathrel{\mathbf{seq}}}
+\def\RESULT  {\mathrel{\mathbf{result}}}
+\def\CALL  {\mathrel{\mathbf{Call}}}
+\def\LOCAL    {\mathrel{\mathbf{local}}}
+\def\ADDGUARD {\mathrel{\mathbf{addGuard}}}
+\def\ADDUPD   {\mathrel{\mathbf{addUpd}}}
+\def\ADDRULE  {\mathrel{\mathbf{addRule}}}
+\def\MINUSRULE  {\mathrel{\mathbf{minusRule}}}
+\def\TO      {\mathrel{\mathbf{to}}}
+%
+% Including figures
+%
+\def\includefig#1#2{\centering\medskip
+  \includegraphics[scale=#1]{fig/#2}
+  \medskip}
+%
+% References to paragraphs in the ECMA standard for C#
+%
+\def\ecma#1{\cite[\S#1]{ecma334}}
+%
+%  Environments for definitions and theorems
+%
+%\theorembodyfont{\rm}
+%\newtheorem{definition}[subsection]{Definition}
+%\newtheorem{lemma}[subsection]{Lemma}
+%\newtheorem{theorem}[subsection]{Theorem}
+%\newtheorem{proposition}[subsection]{Proposition}
+%\newtheorem{corollary}[subsection]{Corollary}
+%\newtheorem{example}[subsection]{Example}
+%\newtheorem{remark}[subsection]{Remark}
+%\newtheorem{constraint}[subsection]{Constraint}
+\def\proof{\trivlist\item[]{\bf Proof.}}
+\def\endproof{$\Box$\endtrivlist}
+%
+% enumerate and itemize (smaller skips) from "latex.ltx"
+%
+\makeatletter
+\def\enumerate{%
+  \ifnum \@enumdepth >\thr@@\@toodeep\else
+    \advance\@enumdepth\@ne
+    \edef\@enumctr{enum\romannumeral\the\@enumdepth}%
+      \expandafter
+      \list
+        \csname label\@enumctr\endcsname
+        {\usecounter\@enumctr\def\makelabel##1{\hss\llap{##1}}
+         \itemsep 0pt\parskip 0pt\parsep 0pt\topsep\smallskipamount}%
+  \fi}
+\def\itemize{%
+  \ifnum \@itemdepth >\thr@@\@toodeep\else
+    \advance\@itemdepth\@ne
+    \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+    \expandafter
+    \list
+      \csname\@itemitem\endcsname
+      {\def\makelabel##1{\hss\llap{##1}}
+       \itemsep 0pt\parskip 0pt\parsep 0pt\topsep\smallskipamount}%
+  \fi}
+\makeatother
+%
+% items in itemize
+%
+\def\bull{\vrule height .9ex width .8ex depth -.1ex}
+\def\labelitemi{\bull}
+%
+%
+%
+\def\cs#1{C\#$_{\mathcal{#1}}$}
+\def\lang#1{L$_{\mathcal{#1}}$}
+%
+% Positions
+%
+\def\pos#1{{}^{#1}}
+\def\termPos{\blacktriangleright}
+\def\cursor{\pos{\termPos}}
+%
+%
+%
+\def\sup{\hbox{sup}}
+\def\c#1{\texttt{#1}}           % code
+\def\N#1{\textit{#1}}           % non terminal symbols
+\def\T#1{\hbox{`\texttt{#1}'}}  % terminal symbols
+\def\A#1{\hbox{\sc#1}}          % ASM rules
+\def\D#1{#1}                    % dynamic functions
+\def\U#1{#1}                    % universes
+\def\C#1{#1}                    % constructors
+\def\rdef{\equiv}
+\def\lbr{\c{\char`\{}}
+\def\rbr{\c{\char`\}}}
+\def\mb{\hbox{::}}
+\def\map#1#2{\textbf{Map from}~#1~\textbf{to}~#2}
+\def\cat{\cdot}
+\def\adots{\mathinner{\ldotp\ldotp}}
+%
+%
+% macros.tex ends here
