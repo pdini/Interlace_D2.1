@@ -33,14 +33,12 @@
 \def\asm{\global\asmi=0 
 %%%%%%%%%%%%%% added by Paolo:
 \parskip=0pt
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
  \def\+{\inc\nl}
  \def\-{\dec\nl}
  \def\\{\nl}
- \begin{trivlist}
- \item[]\leftskip=\asmindent\relax$}
-\def\endasm{$
-\end{trivlist}}
+ \begin{trivlist}\item[]\leftskip=\asmindent\relax$}
+\def\endasm{$\end{trivlist}}
 %\mathindent=\asmindent
 %
 % \begin{asmarray}
@@ -82,7 +80,9 @@
 \def\FORALL  {\mathrel{\mathbf{forall}}}
 \def\FORSOME  {\mathrel{\mathbf{forsome}}}
 \def\FOREACH  {\mathrel{\mathbf{foreach}}}
+\def\THEREISNO  {\mathrel{\mathbf{thereisno}}}
 \def\IF      {\mathrel{\mathbf{if}}}
+\def\IFF      {\mathrel{\mathbf{iff}}}
 \def\IMPORT  {\mathrel{\mathbf{import}}}
 \def\IN      {\mathrel{\mathbf{in}}}
 \def\LET     {\mathrel{\mathbf{let}}}
