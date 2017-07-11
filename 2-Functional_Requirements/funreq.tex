@@ -20,7 +20,7 @@ In this section we describe the interaction of the Sardex system (also called si
 \subsection{Signature elements of B2B Operations}
 \label{signaturepaymtop}
 The actors of B2B operations are companies which interact with the Sardex system on a request/response basis using various 
-communication devices from whose technical details we abstract here. Therefore it comes natural to describe the iteraction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish
+communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish
 between horizontal and hierarchical interaction. These features have
 been defined to satisfy the requirements of Interaction Computing
 formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of
@@ -28,7 +28,7 @@ Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the
 definition of the communication network structure, using channels and
 a routing component, and a resource manager by specialized
 communicating ASMs) and the implementation see
-\url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a non-monolithic \textcolor{purple}{(Massi) "non-monolithic" should be "distribuited" because "non-monolitic" is a set of different components, but if you say that run the same program, so they aren't different and so it is not a "non-monolitic" system. Distribuited should be more correct because interacting componets can be of the same type, so the same program.} \textcolor{green}{(Luca) About monolihtic/non/distributed, probably is an accademic challenge question, but in my opinione, cyclos today is monolithic but if you take the definition of distributed, cyclos can be distributed, because you can ave multiple application running on multiple machines that share consinstency with third party utilities. So, IMHO we can use the term modular  or simply  "loosely coupled".} version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance.) .} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
+\url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is monolithic. \textcolor{green}{It can be distributed because you can have multiple applications running on multiple machines that share consistency with third-party utilities. So, we can use the term modular or simply  ``loosely coupled''.}} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
 
 We keep the communication mechanism abstract. $\ASM{Send}(msg,to(a))$ denotes the operation of sending the $msg$ to agent $a$. 
 $Received(msg,from(s))$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it is processed. 
@@ -54,7 +54,7 @@ A Credit operation is also called a push transfer. Its goal is to transfer an $a
 	\item the $operation \in \{credit, debit\}$,
 	\item the $channel \in \{phone,website,pos\}$\footnote{$pos$ abbreviates point of sale.} through which the interaction between the user and Sardex takes place,
 	\item the account type of the two involved accounts $from,to \in Account$,
-	\item \textcolor{purple}{(Massi) the group of the two involved members $fromMemberGroup,toMemberGroup \in Group$ }
+	\item \textcolor{purple}{(Massi) the groups of the two members involved: $fromMemberGroup,toMemberGroup \in Group$ }
 	\item conditions on the to-be-transferred $amount$, 
 	\item conditions on so-called custom fields.
 \end{itemize}
@@ -372,10 +372,10 @@ to Luca/Massi: This implies that given any $operation$ and two accounts $acc,acc
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) It is actually unique also "per channel", so "For each transfer operation ∈ {credit, debit} and each pair of accounts acc, acc0 \textbf{and each channel} there is at most one tt ∈ TransferType," (in bold my addition). The reason is because a user can perform a transfer from different channels, so for each channel I need a valid TT.
+\textcolor{purple}{(Massi) It is actually unique also ``per channel'', so ``For each transfer operation $\in \{credit, debit\}$ and each pair of accounts $acc, acc'$ \textbf{and each channel} there is at most one $tt \in TransferType$," (in bold my addition). The reason is because a user can perform a transfer from different channels, so for each channel I need a valid TT.
 }
 
-\textcolor{green}{(Luca) That's true for now because we want to simplify the usability by the users and give they only one valid TT, not a selection of TTs
+\textcolor{green}{(Luca) That's true for now because we want to simplify the usability for the users and give them only one valid TT, not a selection of TTs
 }}}
 
 \noindent\fbox{
@@ -387,7 +387,7 @@ to Luca/Massi: Should the customfield information be included as one of the $tra
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) Yes, customfield info parameters should be a parameter of transfer, because we need to check them, and also because when the transfer is written in the ledger, also the custom fields are written.
+\textcolor{purple}{(Massi) Yes, customfield info parameters should be parameters of transfer, because we need to check them, and also because when the transfer is written in the ledger, also the custom fields are written.
 }
 
 }}
@@ -401,12 +401,12 @@ to Luca/Massi: Should such additional parameters be included into the arguments 
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) I think that "date" and "used transfer type" should not be included as parameters, but they can be calculated by the function transaction.
+\textcolor{purple}{(Massi) I think that ``date'' and ``used transfer type'' should not be included as parameters, but they can be calculated by the function transaction.
 }
 
 \textcolor{brown}{(Paolo) @Massi seems OK, but I am not sure I fully understand the implications. It sounds like you are saying that they are output parameters, not input parameters to transaction(transfer)?}
 
-\textcolor{green}{(Luca)  I'm also confused about the question, input parameters are already discussed, there is only an added item, CustomField. But I'm not sure about the question is intended for.}
+\textcolor{green}{(Luca)  I'm also confused about the question, input parameters are already discussed, there is only an added item, CustomField. But I'm not sure about what the question is intended for.}
 }}
 
 \noindent\fbox{
@@ -418,7 +418,7 @@ to Luca/Massi: Which are the error cases you would like to be dealt with here?
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) We are asking to Anna Laura a list of errors that make sense on the user perspective. I hope we have that list soon.}
+\textcolor{purple}{(Massi) We are asking Anna Laura for a list of errors that make sense from the user perspective. I hope we have that list soon.}
 }}
 
 
@@ -426,14 +426,16 @@ to Luca/Massi: Which are the error cases you would like to be dealt with here?
     \parbox{\textwidth}{
     \textcolor{red}{
 {\bf Q5:}\\
-to Luca/Massi:  Is this $Match$ definition for $debit$ correct or should the account parameters be inversed so that a $debit$ $Match$ holds if the $credit$ $Match$ holds on the accounts with inverted order?
+to Luca/Massi:  Is this $Match$ definition for $debit$ correct or should the account parameters be inverted so that a $debit$ $Match$ holds if the $credit$ $Match$ holds on the accounts with inverted order?
 }}}
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) Since operation is a parameter of transfer, I think Match can implement the correct logic without the need to invert the parameters order.}
+\textcolor{purple}{(Massi) Since this operation is a parameter of transfer, I think Match can implement the correct logic without the need to invert the parameters' order.}
 
 \textcolor{green}{(Luca)   I agree, and in future we probably can have more differences.}
+
+\textcolor{brown}{(Paolo) By `differences' do you mean things test a $Match$ for?}
 }}
 
 \noindent\fbox{
@@ -445,13 +447,15 @@ to Luca/Massi:  Since you asked me to formulate the debit rule with member param
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) Here there is a point. I think that the Sardex business logic forces that "debit transfer" can be performed only with "SardexAccount" (not domu or fee), but "credit transfer" can happen with other account types (in particular domu). So, in credit transfer we need to indicate the account (if there is more then one), but in debit we can indicate the member, because the member can have at most 1 account of type "conto sardex”.
+\textcolor{purple}{(Massi) This is a good point. I think that the Sardex business logic forces that ``debit transfer'' can be performed only with ``SardexAccount'' (not domu or fee), but ``credit transfer'' can happen with other account types (in particular domu). So, in credit transfer we need to indicate the account (if there is more then one), but in debit we can indicate the member, because the member can have at most 1 account of type ``conto sardex''.
 }
 
 \textcolor{brown}{(Paolo) @Massi: OK, looks like this should be documented somewhere...
 }
 
-\textcolor{green}{(Luca) Here we are discussing about the ever green question, account are property of users(members), are more simple to understand for users, but transactions are from an account to another account. We need to explain well. }
+\textcolor{green}{(Luca) Here we are discussing about the evergreen question: accounts are property of users(members) and are simpler to understand for users, but transactions are from an account to another account. We need to explain well. }
+
+\textcolor{brown}{(Paolo) I do not understand what you mean by `evergreen' :-)}
 }}
 
 \noindent\fbox{
@@ -463,7 +467,7 @@ Is the range of $customField$ a set (so only single fields can appear as request
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) I think customField should be a "set of sets" because we can have multiple or range values for each customfield. The set Amount should is the (Set of Natural numbers) / 100 (so, for example: 0.01, 0.02, 0.03, ….)
+\textcolor{purple}{(Massi) I think customField should be a ``set of sets'' because we can have multiple or range values for each customfield. The set Amount should is the (Set of Natural numbers) / 100 (so, for example: 0.01, 0.02, 0.03, ….)
 }
 }}
 
@@ -471,12 +475,12 @@ Is the range of $customField$ a set (so only single fields can appear as request
     \parbox{\textwidth}{
     \textcolor{red}{
 {\bf Q8:}\\
-Again the issue arises which kinds of parameters should we consider in the model?
+Again the issue arises of which kinds of parameters we should consider in the model?
 }}}
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}\\
-\textcolor{purple}{(Massi) I'm not sure which paramemeters you are talking about, Egon.
+\textcolor{purple}{(Massi) I'm not sure which parameters you are talking about, Egon.
 }
 }}
 
