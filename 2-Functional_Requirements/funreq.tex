@@ -264,9 +264,9 @@ Small(amount) \mbox{ iff } amount<100
 
 
 \vspace{12pt}
-\textcolor{red}{***Question 2 to Luca/Massi: Not knowing which parameters you include into the msg exchange between Sardex and debitors I wrote the rules using only locations one needs from the logical point of view to unambiguously identify the transfer and its transaction. So I have used otp as an identifier for a pending transaction--of form (otp,(transfer,tt))--and have not included any garbage collection for PendingTransaction but simply placed upon its confirmation a pending transaction (completed by the date) into the Ledger. Is this abstraction ok or do other parameters come into play? 
+\textcolor{red}{***Question 2 to Luca/Massi: Not knowing which parameters you include into the msg exchange between Sardex and debitors I wrote the rules using only locations one needs from the logical point of view to unambiguously identify the transfer and its transaction. So I have used otp as an identifier for a pending transaction--of form (otp,(transfer,tt))--and have not included any garbage collection for PendingTransaction but simply placed upon its confirmation a pending transaction (completed by the date) into the Ledger. Is this abstraction ok or do other parameters come into play?} 
 
-NB. I also inserted a msg to the debitor in case of insufficient balance. Is this what the system does? If not we have to delete that
+\textcolor{red}{NB. I also inserted a msg to the debitor in case of insufficient balance. Is this what the system does? If not we have to delete that
 clause.***}
 \vspace{12pt}
 
@@ -396,5 +396,5 @@ $availBalance$ is an example of a derived function, i.e. a dynamic function with
 \noindent\fbox{
     \parbox{\textwidth}{
 {\bf ANSWER:}
-}
+}}
 
