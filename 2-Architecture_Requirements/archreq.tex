@@ -1,0 +1,299 @@
+\chapter{Architectural Requirements}
+\label{ch:archreq}
+\section{\textbf{About INTERLACE}}
+
+The objective of INTERLACE is to use the Abstract State Interaction Machines framework (CoreASIM) open source output of
+the FP7 FET project BIOMICS to develop a decentralized transactional and ledger architecture demonstrator for B2B mutual
+credit. INTERLACE will add to the work already started by its coordinator, Sardex s.r.l., to develop this architecture.
+SARDEX will use the Open Transaction protocol (OTX) as an intermediate solution between fully centralized and distributed
+architectures. OTX involves a pool of Auditor nodes to validate the transactions executed by each Notary node. In
+INTERLACE there will be only one central Notary, as a first step from the current centralized server towards a more
+distributed architecture. The persistence layer will be implemented as a private blockchain stored on the central server to
+create a sparse 160-bit address space implemented as a binary hash tree. This approach achieves continuity with the
+existing solution while also enabling scalability to multiple circuits (multiple Notaries) under the same mathematical and
+computational framework. SARDEX has been operating successfully an electronic, B2B, zero-interest mutual credit system
+on the island of Sardinia since 2009. The Sardex system (also known as Circuito di Credito Commerciale) enables local
+economic actors (SMEs in particular) to trade with each other in a trustful and circular fashion with a unique digital trade
+credit unit. It does this by monetizing the spare capacity of the local economy in the form of mutual, and taxable, credit
+between participating companies, at zero interest, on a strong basis of trust, solidarity, and local cultural identity. Therefore,
+INTERLACE will address very effectively the Workprogramme objective to generate socio-economic impact from EU-funded
+research. INTERLACE is uniquely positioned to integrate the very advanced results of BIOMICS directly in a deeply
+innovative, transformative, and successful fintech platform for B2B trade.
+
+\section{Introduction and Goals}\label{section-introduction-and-goals}
+
+Currently Sardex implements a well running payment platform which offers a solid cooperation and financial transaction facilities. Nevertheless, the architecture has been build using a monolithic centralized approach which is going to be changed.
+
+The aim of the platform redesign is to move to decentralized and finally to a completely distributed architecture which is able to scale far beyond the current technically restricted implementations.
+
+As mentioned in the introductory "About" the business logic will be formulated using "Abstract State Machines" to offer a common abstracted few of the functional requirements. Then those requirements will be transformed to for using the \textbf{coreASIM} framework which offers to run those models directly on a computer before implementing it in a productive environment.
+
+Those functional requirements will cover the very core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the back-end servers. The reason for that is to enable the \textbf{State Machines} to communicate directly with the current back-end. After the State Machines are mapping the current functionalities correctly, the new decentralized/distributed back-end will be developed. Finally when the new back-end is ready the State Machines will be changed in order to work with the new logic. In that way you will be able to test and verify the new implementations.
+
+\subsection{Requirements Overview}\label{_requirements_overview}
+
+\ref{ch:funcreq}
+
+\subsection{Quality Goals}\label{_quality_goals}
+
+\subsection{Stakeholders}\label{_stakeholders}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+\begin{minipage}[b]{0.18\columnwidth}\raggedright\strut
+Role/Name\strut
+\end{minipage} & \begin{minipage}[b]{0.37\columnwidth}\raggedright\strut
+Contact\strut
+\end{minipage} & \begin{minipage}[b]{0.37\columnwidth}\raggedright\strut
+Expectations\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.18\columnwidth}B2B \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Participating Companies \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Business to business transactions and interaction\end{minipage}
+\tabularnewline
+\tabularnewline
+\begin{minipage}[t]{0.18\columnwidth}B2E \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Employees \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Payments of Employees\end{minipage}
+\tabularnewline
+\tabularnewline
+\begin{minipage}[t]{0.18\columnwidth}B2C \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Normal Customer \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Payments to Participating Companies\end{minipage}
+\tabularnewline
+\tabularnewline
+\begin{minipage}[t]{0.18\columnwidth}Sardex-Admin \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Sardex Employee \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Configuring and maintaining the infrastructure\end{minipage}
+\tabularnewline
+\tabularnewline
+\begin{minipage}[t]{0.18\columnwidth}Sardex-Manager \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Sardex Employee \end{minipage} &
+\begin{minipage}[t]{0.37\columnwidth}Running evaluations and managing the cooperation platform \end{minipage}
+\tabularnewline
+
+
+\bottomrule
+\end{longtable}
+
+\section{Architecture
+Constraints}\label{section-architecture-constraints}
+
+\section{System Scope and
+Context}\label{section-system-scope-and-context}
+
+\subsection{Business Context}\label{_business_context}
+
+\textbf{\textless{}Diagram or Table\textgreater{}}
+
+\textbf{\textless{}optionally: Explanation of external domain
+interfaces\textgreater{}}
+
+\subsection{Technical Context}\label{_technical_context}
+
+\textbf{\textless{}Diagram or Table\textgreater{}}
+
+\textbf{\textless{}optionally: Explanation of technical
+interfaces\textgreater{}}
+
+\textbf{\textless{}Mapping Input/Output to Channels\textgreater{}}
+
+\section{Solution Strategy}\label{section-solution-strategy}
+
+\section{Building Block View}\label{section-building-block-view}
+
+\subsection{Whitebox Overall System}\label{_whitebox_overall_system}
+
+\emph{\textbf{\textless{}Overview Diagram\textgreater{}}}
+
+\begin{description}
+\item[Motivation]
+\emph{\textless{}text explanation\textgreater{}}
+\item[Contained Building Blocks]
+\emph{\textless{}Description of contained building block (black
+boxes)\textgreater{}}
+\item[Important Interfaces]
+\emph{\textless{}Description of important interfaces\textgreater{}}
+\end{description}
+
+\subsubsection{\textless{}Name black box
+1\textgreater{}}\label{__name_black_box_1}
+
+\emph{\textless{}Purpose/Responsibility\textgreater{}}
+
+\emph{\textless{}Interface(s)\textgreater{}}
+
+\emph{\textless{}(Optional) Quality/Performance
+Characteristics\textgreater{}}
+
+\emph{\textless{}(Optional) Directory/File Location\textgreater{}}
+
+\emph{\textless{}(Optional) Fulfilled Requirements\textgreater{}}
+
+\emph{\textless{}(optional) Open Issues/Problems/Risks\textgreater{}}
+
+\subsubsection{\textless{}Name black box
+2\textgreater{}}\label{__name_black_box_2}
+
+\emph{\textless{}black box template\textgreater{}}
+
+\subsubsection{\textless{}Name black box
+n\textgreater{}}\label{__name_black_box_n}
+
+\emph{\textless{}black box template\textgreater{}}
+
+\subsubsection{\textless{}Name interface
+1\textgreater{}}\label{__name_interface_1}
+
+\ldots{}
+
+\subsubsection{\textless{}Name interface
+m\textgreater{}}\label{__name_interface_m}
+
+\subsection{Level 2}\label{_level_2}
+
+\subsubsection{\texorpdfstring{White Box \emph{\textless{}building block
+1\textgreater{}}}{White Box \textless{}building block 1\textgreater{}}}\label{_white_box_emphasis_building_block_1_emphasis}
+
+\emph{\textless{}white box template\textgreater{}}
+
+\subsubsection{\texorpdfstring{White Box \emph{\textless{}building block
+2\textgreater{}}}{White Box \textless{}building block 2\textgreater{}}}\label{_white_box_emphasis_building_block_2_emphasis}
+
+\emph{\textless{}white box template\textgreater{}}
+
+\ldots{}
+
+\subsubsection{\texorpdfstring{White Box \emph{\textless{}building block
+m\textgreater{}}}{White Box \textless{}building block m\textgreater{}}}\label{_white_box_emphasis_building_block_m_emphasis}
+
+\emph{\textless{}white box template\textgreater{}}
+
+\subsection{Level 3}\label{_level_3}
+
+\subsubsection{White Box \textless{}\_building block
+x.1\_\textgreater{}}\label{_white_box_building_block_x_1}
+
+\emph{\textless{}white box template\textgreater{}}
+
+\subsubsection{White Box \textless{}\_building block
+x.2\_\textgreater{}}\label{_white_box_building_block_x_2}
+
+\emph{\textless{}white box template\textgreater{}}
+
+\subsubsection{White Box \textless{}\_building block
+y.1\_\textgreater{}}\label{_white_box_building_block_y_1}
+
+\emph{\textless{}white box template\textgreater{}}
+
+\section{Runtime View}\label{section-runtime-view}
+
+\subsection{\textless{}Runtime Scenario
+1\textgreater{}}\label{__runtime_scenario_1}
+
+\begin{itemize}
+\item
+  \emph{\textless{}insert runtime diagram or textual description of the
+  scenario\textgreater{}}
+\item
+  \emph{\textless{}insert description of the notable aspects of the
+  interactions between the building block instances depicted in this
+  diagram.\textgreater{}}
+\end{itemize}
+
+\subsection{\textless{}Runtime Scenario
+2\textgreater{}}\label{__runtime_scenario_2}
+
+\subsection{\ldots{}}\label{_}
+
+\subsection{\textless{}Runtime Scenario
+n\textgreater{}}\label{__runtime_scenario_n}
+
+\section{Deployment View}\label{section-deployment-view}
+
+\subsection{Infrastructure Level 1}\label{_infrastructure_level_1}
+
+\emph{\textbf{\textless{}Overview Diagram\textgreater{}}}
+
+\begin{description}
+\item[Motivation]
+\emph{\textless{}explanation in text form\textgreater{}}
+\item[Quality and/or Performance Features]
+\emph{\textless{}explanation in text form\textgreater{}}
+\item[Mapping of Building Blocks to Infrastructure]
+\emph{\textless{}description of the mapping\textgreater{}}
+\end{description}
+
+\subsection{Infrastructure Level 2}\label{_infrastructure_level_2}
+
+\subsubsection{\texorpdfstring{\emph{\textless{}Infrastructure Element
+1\textgreater{}}}{\textless{}Infrastructure Element 1\textgreater{}}}\label{__emphasis_infrastructure_element_1_emphasis}
+
+\emph{\textless{}diagram + explanation\textgreater{}}
+
+\subsubsection{\texorpdfstring{\emph{\textless{}Infrastructure Element
+2\textgreater{}}}{\textless{}Infrastructure Element 2\textgreater{}}}\label{__emphasis_infrastructure_element_2_emphasis}
+
+\emph{\textless{}diagram + explanation\textgreater{}}
+
+\ldots{}
+
+\subsubsection{\texorpdfstring{\emph{\textless{}Infrastructure Element
+n\textgreater{}}}{\textless{}Infrastructure Element n\textgreater{}}}\label{__emphasis_infrastructure_element_n_emphasis}
+
+\emph{\textless{}diagram + explanation\textgreater{}}
+
+\section{Cross-cutting Concepts}\label{section-concepts}
+
+\subsection{\texorpdfstring{\emph{\textless{}Concept
+1\textgreater{}}}{\textless{}Concept 1\textgreater{}}}\label{__emphasis_concept_1_emphasis}
+
+\emph{\textless{}explanation\textgreater{}}
+
+\subsection{\texorpdfstring{\emph{\textless{}Concept
+2\textgreater{}}}{\textless{}Concept 2\textgreater{}}}\label{__emphasis_concept_2_emphasis}
+
+\emph{\textless{}explanation\textgreater{}}
+
+\ldots{}
+
+\subsection{\texorpdfstring{\emph{\textless{}Concept
+n\textgreater{}}}{\textless{}Concept n\textgreater{}}}\label{__emphasis_concept_n_emphasis}
+
+\emph{\textless{}explanation\textgreater{}}
+
+\section{Design Decisions}\label{section-design-decisions}
+
+\section{Quality Requirements}\label{section-quality-scenarios}
+
+\subsection{Quality Tree}\label{_quality_tree}
+
+\subsection{Quality Scenarios}\label{_quality_scenarios}
+
+\section{Risks and Technical Debts}\label{section-technical-risks}
+
+\section{Glossary}\label{section-glossary}
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule
+\begin{minipage}[b]{0.47\columnwidth}\raggedright\strut
+Term\strut
+\end{minipage} & \begin{minipage}[b]{0.47\columnwidth}\raggedright\strut
+Definition\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
+\textless{}Term-1\textgreater{}\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
+\textless{}definition-1\textgreater{}\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
+\textless{}Term-2\textgreater{}\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
+\textless{}definition-2\textgreater{}\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
