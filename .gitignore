@@ -8,3 +8,5 @@ misc/*.aux
 *.pdf
 *.iml
 !.gitkeep
+*.synctex.gz
+*.out
