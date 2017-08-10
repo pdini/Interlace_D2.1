@@ -1,0 +1,400 @@
+\chapter{Modelling Sardex Payment Operations\\ (Functional Requirements)}
+\label{ch:funreq}
+
+
+\vspace{-1cm}
+\begin{center}
+Egon B\"orger
+%, Luca Carboni, Massimeddu Cireddu, Paolo Dini, Eduard Hirsch
+\end{center}
+
+
+We specify the core payment and related history operations of the Sardex system. We do this at the functional requirements  level of abstraction and in a component-based manner so that the resulting model can serve as abstract description of the current implementation but also as starting point for a new, blockchain-based implementation. Sect.~\ref{sect:paymtops} models  two basic payment operations, Sect.~\ref{sect:accHistory} account history and balance operations, Sect.~\ref{sect:permission} permission features, Sect.~\ref{onboarding} onboarding operations and Sect.~\ref{sect:userops} user operations.
+
+
+\section{Core Payment Operations}
+\label{sect:paymtops}
+
+In this section we describe the interaction of the Sardex system (also called simply Sardex)  with users. We consider here B2B operations, leaving the consideration of operations between a company and either employees or consumers for a later phase. Sect.~\ref{signaturepaymtop} explains the basic data types,  Sect.~\ref{sec:creditop} the credit and  Sect.~\ref{sec:debitop} the debit operation.
+
+\subsection{Signature elements of B2B Operations}
+\label{signaturepaymtop}
+The actors of B2B operations are companies which interact with the Sardex system on a request/response basis using various 
+communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish
+between horizontal and hierarchical interaction. These features have
+been defined to satisfy the requirements of Interaction Computing
+formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of
+Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the
+definition of the communication network structure, using channels and
+a routing component, and a resource manager by specialized
+communicating ASMs) and the implementation see
+\url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
+
+We keep the communication mechanism abstract. $\ASM{Send}(msg,to(a))$ denotes the operation of sending the $msg$ to agent $a$. 
+$Received(msg,from(s))$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. 
+
+We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $from(c)$ in $Received(msg, from(c))$ indicates that $sender(msg)=c$. Similarly, $to(c)$ in $\ASM{Send}(msg, to(c))$ denotes that $receiver(msg) = c$.
+
+The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} \textcolor{purple}{(Massi) A company can has at most an account for each account type.} Each such company may have a number of $acc$ounts which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:
+
+\begin{asm}
+AccountType=\{credit, domu, fee\} \\
+Account = \bigcup_{c \in SardexNet} Account(c)
+\end{asm}
+Therefore we name such accounts $creditAccount(c)$, $domuAccount(c)$, $feeAccount(c)$ (names which are defined if $c$ has the corresponding accounts). 
+
+There are two principal transfer operations, called Credit and Debit operation specified in Sect.~\ref{sec:creditop} and Sect.~\ref{sec:debitop}.
+
+\subsection{Sardex Behaviour for Credit Operations}
+\label{sec:creditop}
+
+A Credit operation is also called a push transfer. Its goal is to transfer an $amount$ via a specific $channel$ from one account to another. Sardex uses a $TransferType$ concept which allows one to impose on the transfer operations certain conditions, including priorities. The parameters of a transfer type $tt$ which are relevant for the Sardex business logic are the following:\footnote{The implementation in Cyclos has more parameters we do not consider here.}
+
+\begin{itemize}
+	\item the $operation \in \{credit, debit\}$,
+	\item the $channel \in \{phone,website,pos\}$\footnote{$pos$ abbreviates point of sale.} through which the interaction between the user and Sardex takes place,
+	\item the account type of the two involved accounts $from,to \in Account$,
+	\item the groups of the two members involved: $fromMbrGroup,toMbrGroup \in Group$,
+	\item conditions on the to-be-transferred $amount$, 
+	\item conditions on so-called custom fields.
+\end{itemize}
+
+$CustField$ is a set of typed variables, with or without parameters, in ASM terminology a set of 0-ary or $n$-ary functions (with $n>0$) whose values are of an indicated type. They serve to encode customer information on the reason of a transfer, e.g. the number and date of the bill to be paid. For each transfer type its $custFields$ (if there are any) are of two kinds, compulsory or optional. The $custFieldCond$ition of a transfer type is a formula with its compulsory custom fields as arguments. For a $transfer$ to $Match$ a transfer type $tt$ means in particular that its $custFieldCond(tt,custFields(transfer))$ evaluates to true, where $custFields(transfer)$ resp. $custFields(tt)$  denotes the values of the custom fields in the $transfer$ resp. transfer type $tt$. As a consequence if a transfer type $tt$ comes without or only with optional custom fields, then the $custFieldCond$ with $tt$ as first argument is empty, i.e. simply true.
+
+We retrieve for each parameter the corresponding information from a transfer type $tt$ by an appropriate function:
+
+\begin{asm}
+name\colon TransferType \rightarrow Identifier \\
+oper\colon TransferType \rightarrow Operation\\
+chan\colon TransferType \rightarrow Channel \\
+sourceType,destType\colon TransferType \rightarrow Formula 
+       \mbox{ // expressions for conditions}\\
+fromMemberGroup,toMemberGroup \colon TransferType \rightarrow Group \\
+amountCond,custFieldCond\colon TransferType \rightarrow Formula\\
+\WHERE \+
+    Operation = \{credit,debit\} \\
+    Channel = \{phone, website,pos\}
+\end{asm} 
+
+One can imagine $TransferType$ as a table where each row is named and contains the parameters of the represented $tt$. The $TransferType$ data type is defined in such a way as to guarantee the following property: 
+\begin{quote} 
+	{\bf Transfer Type Welldefinedness}. For each transfer $operation \in \{credit,debit\}$, each pair of accounts $acc,acc'$ and each $channel$ there is at most one $tt \in TransferType$, i.e. at most one $tt$ which satisfies
+	\begin{itemize}
+		\item $oper(tt) = operation$,
+		\item chan(tt)=channel,
+		\item $sourceType(tt)=accountType(acc)$,
+		\item $destType(tt)=accountType(acc')$.
+	\end{itemize} 
+We denote this unique $tt$ as the value of the function $tt(operation,acc,acc',channel)$.\footnote{Following common notation we use the same name $tt$ for elements of $TransferTable$ and for the function $tt(params)$; it will always be clear from the context which one is meant.}
+\end{quote}
+
+
+Both payment operations Credit and Debit are instances of a request/response pattern with two phases, a first phase whose action is called Preview -- where only the permission for the transfer is checked (using a $transferTypeCheck$ function) but not the requested amount -- and  a second phase whose action is called Perform where also the amount is checked (using a $balanceCheck$ function). On the user side both actions are treated as stateless, on the Sardex system side only the Preview action is stateless. Here we make the -- for the user stateless -- two-phase interaction explicit by using two  types of user requests, say $CreditPreviewReq$ and $CreditPerformReq$, with corresponding Sardex rules $\ASM{CreditPreviewReq}$ and $\ASM{CreditPerformReq}$ to react to such requests. The user first sends a $CreditPreviewReq$uest and upon the positive system response the corresponding $CreditPerformReq$uest.  
+Sardex can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whose execution depends only on the parameters with which they are called. But for one successful credit request instance the two rules can be executed only in the indicated order, due to the intrinsic sequentiality of the two steps for the request.
+
+In the $\ASM{CreditTransferReq}$ model we assume that its access to the two accounts $from, to$ is exclusive; in other words, we abstract here from the corresponding synchronization mechanism which guarantees the assumption.
+
+\begin{asm}
+\ASM{CreditTransferReq}((channel,from, to, amount),mbr)=\+
+   \ASM{CreditPreviewReq}((channel,from,to,amount),mbr)  \\
+   \ASM{CreditPerformReq}((channel,from,to,amount),mbr) 
+\end{asm}
+
+
+
+We define the two core functions $transferTypeCheck$ and $balanceCheck$ of $\ASM{CreditTransferReq}$ abstractly, to satisfy a modular design approach, as yielding either a positive answer---for $transferTypeCheck$  the (in this case by the Transfer Type Welldefinedness property stated above well defined) matching type $tt$ and for $balanceCheck$  the answer ok---or some information on the reason why the check did not succeed. Since there may be several reasons for a failure, in case of failure the value of the two functions is a set of detected failure reasons, say elements of $TransferTypeError$ resp. $BalanceViolation$.  Out of this set an $ErrMsg$ can be constructed to provide the user with some information why the check did not succeed, tailoring the format and payload of error messages.  Below we illustrate this modular approach to exception handling by some characteristic examples.
+
+
+\begin{asm}
+\ASM{CreditPreviewReq}((channel,from,to,amount,custFlds),mbr)  =\+
+  \IF  Received(CreditPreviewReq
+        (credit,channel,from,to,amount,custFlds),f rom(mbr)) \THEN \+  
+    \LET transfer=(credit,channel,from,to,amount,custFlds) \\
+    \LET ttRes=transferTypeCheck(transfer)  \+
+      \IF ttRes \not \in TransferType \THEN \+   
+         \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
+      \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),to(mbr))\-
+    \ASM{Consume}(CreditPreviewReq
+        (credit,channel,from,to,amount,custFlds),f rom(mbr)) \dec\-
+\WHERE \+
+  transferTypeCheck(transfer) \in \+
+           \left\{\begin{array}{ll}
+           \{tt\} & \IF  tt \in TransferType \AND    
+           Match(tt,transfer)\\
+           PowerSet(TransferTypeError) & \ELSE 
+           \end{array}\right .\-
+Match(tt,transfer) \IF \+
+          oper(tt)=credit \AND chan(tt)=channel \AND \\
+          owner(from) \in fromMemberGroup(tt) \AND 
+              owner(to) \in toMemberGroup(tt)  \AND \\
+          sourceType(tt)=accountType(from) \AND destType(tt)=accountType(to) \AND \\
+              custFieldCond(tt,custFlds)=true\dec\-
+\end{asm}
+
+
+The $Match$ predicate is extended in Sect.~\ref{sec:debitop} for the first transfer parameter $debit$ (instead of $credit$).\footnote{This is the reason why the definition here considers only the $\IF$ case instead of stating $\IFF$.} The set of possible $TransferTypeError$s can be defined for the various cases of interest where
+the $Match(tt,transfer)$ condition is violated for whatever $tt \in TransferType$.
+
+
+Since Sardex when responding to a $CreditPreviewReq$uest does not record the data (due to the requirement of the stateless Preview response character), when elaborating a $CreditPerformReq$uest the system in a first step must redo the $transferTypeCheck$. In the case of a positive check result, as part of the $transaction$ which is added to the $Ledger$, besides the $transfer$ parameters also the computed transfer type is recorded together with the transfer date (which is computed by the system as value of a location say $today$ when the credit request is performed). The function $transaction$ denotes the final transaction corresponding to the given $transfer$, its date and transfer type. 
+
+To formulate error conditions for the $balanceCheck$ we need a function $availBalance(acc)$ which yields the amount of money that is currently available in the $acc$ to be spent. It is defined together with the related current balance function $balance(acc)$ in Sect.~\ref{sect:accHistory}. $Receivable(amount,acc)$ checks whether the destination of the transfer by receiving the $amount$ would exceed its upper Sardex limit $upperLimit(acc)$.
+
+
+\begin{asm}
+\ASM{CreditPerformReq}((channel,from,to,amount,custFlds),mbr)=\+
+\IF Received
+   (CreditPerformReq(channel,from,to,amount,custFlds),from(mbr)) \THEN \+  \LET transfer=(credit,channel,from,to,amount,custFlds) \\
+    \LET ttRes=transferTypeCheck(transfer)  \+
+      \IF ttRes \not \in TransferType \THEN \+ \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
+       \ELSE~ 
+       \LET bal = balanceCheck(from, to, amount) \+
+              \IF bal=ok \THEN ~ \ASM{Append}(transaction(transfer,ttRes,today),Ledger)\+
+                \ELSE ~ \ASM{Send}(ErrMsg(transfer,bal),to(mbr))\dec\dec\-
+    \ASM{Consume}(CreditPerformReq(channel,from,to,amount,custFlds),from(mbr)) \dec\-
+\WHERE \+
+balanceCheck(from, to, amount) \in \{Ok\} 
+                  \cup Powerset(BalanceViolation)\\
+balanceCheck(from, to, amount) = Ok \IFF 
+         amountCond(ttRes)(amount) =true \AND \+
+         availBalance(from) \geq amount  \AND Receivable(amount,to)\-
+ViolatesAmountCond(amount) \IF  amountCond(ttRes)(amount) = false \\
+ViolatesLowerLimit(from,amount) \IF availBalance(from) < amount \\
+ViolatesUpperLimit(to,amount) \IF ~\NOT Receivable(amount,to) \\
+ Receivable(amt,acc) \mbox{ iff } balance(acc) + amt \leq upperLimit(acc)
+\end{asm}
+
+
+
+
+\subsection{Sardex Behaviour for Debit Operations}
+\label{sec:debitop}
+
+In the Sardex business logic also a Debit transfer can be performed but only between accounts of type $credit$ (neither $domu$ nor $fee$). Since any Sardex member $c \in SardexNet$ can be $owner$ of at most one account of type $credit$, Debit transfers are formulated as being performed among members $creditor,debitor$. Sardex accepts a $DebitPreviewReq$uest and a  $DebitPerformReq$uest from a $creditor$, using two corresponding rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ Sardex uses to interact with the $creditor$.  $DebitPerformReq$uests are executed using a request/response interaction between the system and the $debitor$. The $debitor$ has to allow the transfer by acknowledging a $ConfirmationReq$uest Sardex sends out; only when the debit transfer has been permitted by an acknowledgement from the $debitor$ will Sardex execute the transfer using a third rule called $\ASM{DebitAckExec}$ution. 
+
+Sardex can execute at any moment any of these rules whose execution depends only on the parameters with which they are called. But for one successful debit $request$ instance the three rules can be executed only in the indicated order, due to the intrinsic sequentiality of the three steps for the $request$.
+
+\begin{asm}
+\ASM{DebitTransferReq}=\+
+   \ASM{DebitPreviewReq} \\
+   \ASM{DebitPerformReq} \\
+   \ASM{DebitAckExec}
+\end{asm}
+
+
+Both rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ in their first step make a $transferTypeCheck$ for the account of type $credit$ of the $debitor$, defined by extending the $Match$ predicate for $debit$ transfer operations. 
+
+\begin{asm}
+\ASM{DebitPreviewReq}((debitor,channel,amount,custFlds),creditor)=\+
+  \IF Received(DebitPreviewReq(debitor,channel,amount,custFlds),
+                   from(creditor)) \THEN \+  
+     \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
+     \LET transfer=(debit,channel,from,to,amount,custFlds)\\  
+     \LET ttRes=transferTypeCheck(transfer) \+
+        \IF ttRes \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(creditor))\-
+       \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),to(creditor))\dec\-
+   \ASM{Consume}(DebitPreviewReq(debitor,channel,amount,custFlds),
+                   from(creditor)) \-
+\WHERE \+
+   Match(tt,transfer) \IF \+
+      oper(tt)=debit \AND chan(tt)=channel \AND \\
+          owner(from) \in fromMemberGroup(tt) \AND 
+              owner(to) \in toMemberGroup(tt)  \AND \\
+          sourceType(tt)=accountType(from) \AND destType(tt)=accountType(to) \AND \\
+              custFieldCond(tt,custFlds)=true
+\end{asm}
+\vspace{12pt}
+\textcolor{red}{***Question 1 to Luca/Massi: This is an Occam's razor question (avoid blow up of number of tts), but probably shows you my ignorance in the matter. I still wonder why in our last skype conversation you confirmed the above definition of Match for the debit case. I would have thought that from the point of view of transfer type check, a Debit operation is symmetric to a Credit operation so that it is reducible to it, in the sense that I would have defined 
+\begin{asm}
+Match(tt,(debit,channel,accCred,accDeb,cFilds)) \IFF \+ Match(tt,(credit,channel,accDeb,accCred,cFilds))
+\end{asm}
+Or do you need for some reason to distinguish between a credit operation done by the creditor and a debit operation alloowed by him (in which case the above definition fits)?***}
+\vspace{12pt}
+
+If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-phase request/response interaction is started, this time with the system as requestor with the $debitor$ to respond. More precisely upon receiving the $DebitPerformReq$uest from the $creditor$, the system after a successful  $transferTypeCheck$ executes a $balanceCheck$, for which we can use the same abstract function as for Credit operations but with interchanged source/destination parameters; in other words, the system checks whether from the $creditAccount(debitor)$ a corresponding Credit operation can be performed. If this check succeeds the system inserts the transaction without further ado if the amount is small (less than 100). Otherwise it creates a $OneTimePassword$ $otp$, records this $otp$ with the transaction (including the computed transfer type) as pending transaction and sends the $otp$  with an agreement request to the $debitor$. It then waits for a confirmation.
+
+
+\begin{asm}
+\ASM{DebitPerformReq}((debitor,channel,amount,custFlds),creditor)=\+
+\IF  Received(DebitPerformReq(debitor,channel,amount,custFlds),
+                 from(creditor)) \THEN \+     
+  \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
+  \LET transfer=(debit,channel,from,to,amount,custFlds) \\
+  \LET ttRes=transferTypeCheck(transfer) \+
+        \IF ttRes \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(creditor))\-
+       \ELSE~  \LET bal = balanceCheck(to, from, amount)  
+                \mbox{ // check balance}\+
+       \IF bal \not =ok \THEN ~ \ASM{Send}(ErrMsg(transfer,bal),to(creditor))   \ELSE \+
+         \IF Small(amount) \THEN ~ \ASM{Append}(transaction(transfer,ttRes,today),Ledger) \+
+           \ELSE ~ \LET otp= \NEW(OneTimePassword)\+
+             \ASM{Insert}((otp,transaction(transfer,ttRes)),PendingTransaction)\\ 
+             status((otp,transaction(transfer,ttRes))):=pending \\
+             \ASM{Send}(ConfirmationReq
+                    (amount,creditor,otp),to(debitor))\dec\dec\dec\dec\-
+   \ASM{Consume}(DebitPerformReq(debitor,channel,amount,custFlds),
+                 from(creditor))
+\end{asm}
+             
+When the $otp$ is acknowledged (i.e. resent) by the $debitor$ 
+the system updates the transaction status from $pending$ to $performed$ and 
+$\ASM{Append}$s the transaction to the $Ledger$ with the current date $today$. When the system is waiting for an $otp$ confirmation the $debitor$ is expected to send, this member may instead try to make another Credit transfer. In this case it could be that only one, Credit or Debit, is still possible due to the $debitor$'s account balance. For this reason, when the pending transaction is confirmed, the $balanceCheck$  (but not any more the $transferTypeCheck$) is performed once more and only then is the transaction put into the $Ledger$.  
+              
+ \begin{asm}  
+ \ASM{DebitAckExec} =\+           
+\IF Received
+     (DebitAckMsg(amount,creditor,otp),from(debitor)) \THEN \+ 
+  \IF ~ \THEREISNO t \in PendingTransaction \WITH fst(t)=otp\footnote{$fst$ denotes the first element of a sequence, here of a pair $(otp,t)$ of an $otp$ and the corresponding pending transaction $t$.} \+
+     \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),to(debitor)) \\
+  \ELSE ~\+
+     \LET t=\iota t' (t'=(otp,transf) \mid t'  \in PendingTransaction)\footnote{Hilbert's $\iota$-operator $\iota x P(x)$ denotes the unique $x$ which satisfies property  $P$.}\\
+     \IF status(t)=pending \THEN \+
+        \LET from=creditAccount(debitor), to=creditAccount(creditor)\\
+        \LET bal = balanceCheck(from, to, amount) \+
+          \IF bal \not =ok \THEN \+
+             \ASM{Send}(ErrMsg((transfer,bal),to(creditor))\\
+             \ASM{Send}(ErrMsg((transfer,bal),to(debitor)) \\
+              \ELSE \+
+                status(t):=performed \\
+                \ASM{Append}((transf,today),Ledger) \dec\dec\dec\dec\dec\-  
+  \ASM{Consume}(DebitAckMsg(amount,creditor,otp),from(debitor)) \dec\-
+\WHERE \+
+Small(amount) \mbox{ iff } amount<100
+\end{asm}
+
+
+
+\vspace{12pt}
+\textcolor{red}{***Question 2 to Luca/Massi: Not knowing which parameters you include into the msg exchange between Sardex and debitors I wrote the rules using only locations one needs from the logical point of view to unambiguously identify the transfer and its transaction. So I have used otp as an identifier for a pending transaction--of form (otp,(transfer,tt))--and have not included any garbage collection for PendingTransaction but simply placed upon its confirmation a pending transaction (completed by the date) into the Ledger. Is this abstraction ok or do other parameters come into play?} 
+
+\textcolor{red}{NB. I also inserted a msg to the debitor in case of insufficient balance. Is this what the system does? If not we have to delete that
+clause.***}
+\vspace{12pt}
+
+
+
+Remark. Up to now request/response pattern time issues are not formulated in the model. Here this concerns in particular the  timeout mechanism for pending transactions.\footnote{I can add such a mechanism once the rules become sort of stable.}
+
+\section{Account History and Balance Operations}
+\label{sect:accHistory}
+
+The Sardex system accepts from every business member $c \in SardexNet$ an account history request for any of its accounts, i.e. the elements of  the set $Account(c)$. As parameters of such a request the member can indicate besides the $acc$ount also 
+the $period \in Period$ for which the history is requested, the counterparty (an 
+element of the set $CounterParty(c)$  of accounts allowed to be accessed by the 
+member for a transfer), and/or the amount range in the set $AmountRange$ of allowed 
+transfer amounts, as well as some custom fields (elements of the set $CustField$).
+
+
+
+As usual in the model the information requested by the parameters is retrieved by applying corresponding functions to transactions. A  history request is about transactions $t$ in the $Ledger$, where the $acc$ount appears as $source(t)$ -- the account from where the $t$-transfer has been made -- or as $dest(t)$, the account where the $t$-transfer has been directed to; here $source$ and $dest$ 
+indicate the corresponding extraction functions applied to transactions, formally:
+
+\begin{asm}
+source: Transaction \rightarrow Account \\
+dest: Transaction \rightarrow Account\\
+date: Transaction \rightarrow Time\\
+amount: Transaction \rightarrow Amount \\
+customFields : Transaction \rightarrow CustomFields \\
+counterParty : Transaction ~x~ Account \rightarrow PowerSet(SardexNet) \\
+transferType: Transaction \rightarrow TransferType\+
+\WHERE \+
+Amount = \{n.xy \mid n \in Nat \AND 0 \leq x,y \leq 9\}\\
+CustomFields \subseteq CustField
+\end{asm}
+
+
+For to-be-reported transactions $date(t)$ must be within the indicated $period$.  The $counterParty(t, acc)$ function extracts from a transaction $t$ the $owner$ of the other account involved in the transaction and is applied in case the $counterPty$ parameter is not $All$.  The $amount(t)$  is required to be in the indicated $amountRange$. A $CustFldMatch$ condition expresses the relation which is requested to hold between the $custField$ parameter and the custom fields extracted by the function $customFields(t)$. 
+
+
+
+The Sardex system answers an $AccountHistReq$est by sending back to the requestor 
+either an error message -- in case the requestor is not a member of the circuit or 
+the indicated account is not one of its accounts -- or the set $T$ of transactions 
+which satisfy the above-indicated properties. This is specified by the following ASM rule.
+
+\begin{asm}
+\ASM{AccountHistReq}=\+
+   \IF Received(AccountHistReq(acc, period, counterPty, amountRange, custFld),from(c))    \THEN \+
+     \IF c \not \in SardexNet \OR acc \not\in Account(c) \+
+       \THEN \ASM{Send}(ErrMsg(youHaveNoSuch(acc)),to(c))\\
+       \ELSE \+
+       \LET T=\{t \in Ledger \mid (source(t) = acc \OR dest(t) = acc) \+
+           \AND date(t) \in period \AND amount(t) \in amountRange \\
+           \AND (\IF counterPty \not = All \THEN 
+               counterParty(t, acc) \in  counterPty)\\
+           \AND CustFldMatch(custFld, customField(t)) \} \IN \+
+                \ASM{Send} (T, to(c))\dec\dec\dec\-
+     \ASM{Consume}(AccountHistReq(acc, period, counterPty, amountRange, custField))
+\end{asm}
+
+In a similar way, one can specify the behaviour of Sardex when it receives a $BalanceReq$uest, namely to compute the current $balance$ of the requestor's account. This computation calculates the sum of the amounts of each received transfer and detracts from it the sum of the amounts of each sent transfer.
+
+In addition, we forsee that, for performance and database management reasons, from time to time the system issues a $certifiedBal$ance. Therefore to calculate the current $balance(acc)$, starting with the last $certifiedBal$ance of this $acc$ount, only those transactions need to be considered whose $date$ is after the last $balanceCertificationDate(acc)$, a dynamic location the system updates to the system time $now$ each time it updates the value of the location $certifiedBal(acc)$. This is expressed by the following ASM rule:
+
+\begin{asm}
+\ASM{BalanceReq}=\+
+ \IF Received(BalanceReq(acc)),from(mbr)) \THEN \+
+      \IF  mbr \not \in SardexNet \OR acc \not\in Account(mbr) \+     
+         \THEN ~ \ASM{Send}(ErrMsg(youHaveNoSuch(acc)),to(mbr))\\
+         \ELSE  \+
+             \LET In= \{t \in Ledger \mid dest(t) = acc 
+                  \AND date(t) > balCertificationDate(acc) \} \+
+                          \mbox{ // case receive}\-
+             \LET Out= \{t \in Ledger \mid source(t) = acc  
+             \AND date(t) > balCertificationDate(acc) \} \+
+                  \mbox{ // case transfer}\-
+             \LET bal=  
+                \sum_{t \in In} amount(t)   -  \sum_{t \in Out} amount(t)
+                  + certifiedBal(acc)  \\
+              \LET NoOfTransactions =  \mid In \mid + \mid Out \mid) \+
+             \ASM{Send} ((bal,NoOfTransactions,to(mbr)) \dec\dec\-
+         \ASM{Consume}(BalanceReq(acc))
+\end{asm}
+
+Having the $balance$, one can compute the $availBalance$ (the spendable amount) by adding the value of the $creditLine$:
+\begin{asm}
+availBalance(acc)= balance(acc)+creditLine(acc)
+\end{asm}
+
+$availBalance$ is an example of a derived function, i.e. a dynamic function with a fixed computation scheme (here an equation).  $creditLine(acc)$ is a monitored function for members, it is a controlled function for the agent (typically a broker) who has the right to set it.
+
+
+\section{User Operations}
+\label{sect:userops}
+
+
+\section{Permission Features}
+\label{sect:permission}
+ 
+\section{Onboarding Operations}
+\label{onboarding}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\note#1{}
+
+
+
+\newpage
+
+
+\noindent\fbox{
+    \parbox{\textwidth}{
+{\bf ANSWER:}\\
+\textcolor{purple}{(Massi)}
+\textcolor{green}{(Luca)}
+\textcolor{brown}{(Paolo)}
+\textcolor{blue}{(Eduard)}
+}}
+
+
+\section{Q\&A}
+
+\noindent\fbox{
+    \parbox{\textwidth}{
+    \textcolor{red}{{\bf Q1:}
+}}}
+\noindent\fbox{
+    \parbox{\textwidth}{
+{\bf ANSWER:}
+}}
+
