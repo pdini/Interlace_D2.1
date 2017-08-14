@@ -9,7 +9,7 @@ Egon B\"orger
 \end{center}
 
 
-We specify the core payment and related history operations of the Sardex system. We do this at the functional requirements  level of abstraction and in a component-based manner so that the resulting model can serve as abstract description of the current implementation but also as starting point for a new, blockchain-based implementation. Sect.~\ref{sect:paymtops} models  two basic payment operations, Sect.~\ref{sect:accHistory} account history and balance operations, Sect.~\ref{sect:permission} permission features, Sect.~\ref{onboarding} onboarding operations and Sect.~\ref{sect:userops} user operations.
+We specify the core payment and related history operations of the Sardex system. We do this at the functional requirements  level of abstraction and in a component-based manner so that the resulting model can serve as abstract description of the current implementation but also as starting point for a new, blockchain-based implementation. Sect.~\ref{sect:paymtops} models  two basic payment operations, Sect.~\ref{sect:accHistory} account history and balance operations, Sect.~\ref{sect:userops} user operations, Sect.~\ref{sect:permission} permission features and Sect.~\ref{onboarding} onboarding operations.
 
 
 \section{Core Payment Operations}
@@ -92,7 +92,7 @@ We denote this unique $tt$ as the value of the function $tt(operation,acc,acc',c
 Both payment operations Credit and Debit are instances of a request/response pattern with two phases, a first phase whose action is called Preview -- where only the permission for the transfer is checked (using a $transferTypeCheck$ function) but not the requested amount -- and  a second phase whose action is called Perform where also the amount is checked (using a $balanceCheck$ function). On the user side both actions are treated as stateless, on the Sardex system side only the Preview action is stateless. Here we make the -- for the user stateless -- two-phase interaction explicit by using two  types of user requests, say $CreditPreviewReq$ and $CreditPerformReq$, with corresponding Sardex rules $\ASM{CreditPreviewReq}$ and $\ASM{CreditPerformReq}$ to react to such requests. The user first sends a $CreditPreviewReq$uest and upon the positive system response the corresponding $CreditPerformReq$uest.  
 Sardex can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whose execution depends only on the parameters with which they are called. But for one successful credit request instance the two rules can be executed only in the indicated order, due to the intrinsic sequentiality of the two steps for the request.
 
-In the $\ASM{CreditTransferReq}$ model we assume that its access to the two accounts $from, to$ is exclusive; in other words, we abstract here from the corresponding synchronization mechanism which guarantees the assumption.
+{\bf Remark}. In the $\ASM{CreditTransferReq}$ model we assume that its access to the two accounts $from, to$ is exclusive. This assumption plays the role of a constraint for the implementation and thus is an essential part of the specification. We do not model the corresponding synchronization mechanism (which guarantees the assumption) because its functionality is clear and it is well-known how to program it. 
 
 \begin{asm}
 \ASM{CreditTransferReq}((channel,from, to, amount),mbr)=\+
@@ -144,12 +144,15 @@ To formulate error conditions for the $balanceCheck$ we need a function $availBa
 \begin{asm}
 \ASM{CreditPerformReq}((channel,from,to,amount,custFlds),mbr)=\+
 \IF Received
-   (CreditPerformReq(channel,from,to,amount,custFlds),from(mbr)) \THEN \+  \LET transfer=(credit,channel,from,to,amount,custFlds) \\
+   (CreditPerformReq(credit,channel,from,to,amount,custFlds),from(mbr)) \THEN \+  \LET transfer=(credit,channel,from,to,amount,custFlds) \\
     \LET ttRes=transferTypeCheck(transfer)  \+
       \IF ttRes \not \in TransferType \THEN \+ \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
        \ELSE~ 
        \LET bal = balanceCheck(from, to, amount) \+
-              \IF bal=ok \THEN ~ \ASM{Append}(transaction(transfer,ttRes,today),Ledger)\+
+              \IF bal=ok \+
+                 \THEN \+
+                      \ASM{Append}(transaction(transfer,ttRes,today),Ledger)\\
+                      \ASM{Send}(Confirmed(transfer),to(mbr))\-
                 \ELSE ~ \ASM{Send}(ErrMsg(transfer,bal),to(mbr))\dec\dec\-
     \ASM{Consume}(CreditPerformReq(channel,from,to,amount,custFlds),from(mbr)) \dec\-
 \WHERE \+
@@ -165,6 +168,10 @@ ViolatesUpperLimit(to,amount) \IF ~\NOT Receivable(amount,to) \\
 \end{asm}
 
 
+\vspace{12pt}
+\textcolor{red}{***Question for confirmation to Luca/Massi: In the case of a successfully operated transfer I have inserted a confirmation msg to the user. The same in the
+DebitPerformReq and the DebitAcknExec rule in case of Append. I guess this is what the system does. Is this correct?***}
+\vspace{12pt}
 
 
 \subsection{Sardex Behaviour for Debit Operations}
@@ -173,6 +180,9 @@ ViolatesUpperLimit(to,amount) \IF ~\NOT Receivable(amount,to) \\
 In the Sardex business logic also a Debit transfer can be performed but only between accounts of type $credit$ (neither $domu$ nor $fee$). Since any Sardex member $c \in SardexNet$ can be $owner$ of at most one account of type $credit$, Debit transfers are formulated as being performed among members $creditor,debitor$. Sardex accepts a $DebitPreviewReq$uest and a  $DebitPerformReq$uest from a $creditor$, using two corresponding rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ Sardex uses to interact with the $creditor$.  $DebitPerformReq$uests are executed using a request/response interaction between the system and the $debitor$. The $debitor$ has to allow the transfer by acknowledging a $ConfirmationReq$uest Sardex sends out; only when the debit transfer has been permitted by an acknowledgement from the $debitor$ will Sardex execute the transfer using a third rule called $\ASM{DebitAckExec}$ution. 
 
 Sardex can execute at any moment any of these rules whose execution depends only on the parameters with which they are called. But for one successful debit $request$ instance the three rules can be executed only in the indicated order, due to the intrinsic sequentiality of the three steps for the $request$.
+
+{\bf Remark}. As for $\ASM{CreditTransferReq}$ also in the $\ASM{DebitTransferReq}$ model we assume that the access to the two accounts $from, to$ is exclusive (synchronization constraint). 
+
 
 \begin{asm}
 \ASM{DebitTransferReq}=\+
@@ -225,11 +235,15 @@ If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-pha
        \ELSE~  \LET bal = balanceCheck(to, from, amount)  
                 \mbox{ // check balance}\+
        \IF bal \not =ok \THEN ~ \ASM{Send}(ErrMsg(transfer,bal),to(creditor))   \ELSE \+
-         \IF Small(amount) \THEN ~ \ASM{Append}(transaction(transfer,ttRes,today),Ledger) \+
-           \ELSE ~ \LET otp= \NEW(OneTimePassword)\+
-             \ASM{Insert}((otp,transaction(transfer,ttRes)),PendingTransaction)\\ 
-             status((otp,transaction(transfer,ttRes))):=pending \\
-             \ASM{Send}(ConfirmationReq
+         \IF Small(amount) \+
+              \THEN \+ 
+                   \ASM{Append}(transaction(transfer,ttRes,today),Ledger) \\
+                   \ASM{Send}(Confirmed(transfer,ttRes,today),to(creditor))\\
+                   \ASM{Send}(Confirmed(transfer,ttRes,today),to(debitor))\-
+              \ELSE ~ \LET otp= \NEW(OneTimePassword)\+
+                  \ASM{Insert}((otp,transaction(transfer,ttRes)),PendingTransaction)\\ 
+                   status((otp,transaction(transfer,ttRes))):=pending \\
+                   \ASM{Send}(ConfirmationReq
                     (amount,creditor,otp),to(debitor))\dec\dec\dec\dec\-
    \ASM{Consume}(DebitPerformReq(debitor,channel,amount,custFlds),
                  from(creditor))
@@ -255,19 +269,35 @@ $\ASM{Append}$s the transaction to the $Ledger$ with the current date $today$. W
              \ASM{Send}(ErrMsg((transfer,bal),to(debitor)) \\
               \ELSE \+
                 status(t):=performed \\
-                \ASM{Append}((transf,today),Ledger) \dec\dec\dec\dec\dec\-  
+                \ASM{Append}((transf,today),Ledger) \\
+                \ASM{Send}(Confirmed(transf,today),to(creditor))\\
+                \ASM{Send}(Confirmed(transf,today),to(debitor))\dec\dec\dec\dec\dec\-  
   \ASM{Consume}(DebitAckMsg(amount,creditor,otp),from(debitor)) \dec\-
 \WHERE \+
 Small(amount) \mbox{ iff } amount<100
 \end{asm}
 
+In case the debitor sends a $DebitRejectMsg$ Sardex will reject the $DebitPerformReq$ (by changing its status to $rejected$) and inform the $creditor$ about it.
 
+\begin{asm}  
+ \ASM{DebitRejectExec} =\+           
+\IF Received(DebitRejectMsg(amount,creditor,otp),from(debitor)) \THEN \+ 
+\IF ~ \THEREISNO t \in PendingTransaction \WITH fst(t)=otp\+
+     \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),to(debitor)) \\
+  \ELSE ~\+
+     \LET t=\iota t' (t'=(otp,transf) \mid t'  \in PendingTransaction)\\
+     \IF status(t)=pending \THEN \+
+          status(t):=rejected\\
+          \ASM{Send}(RejectMsg(Rejected(amount,creditor)),to(debitor))
+          \end{asm}
 
 \vspace{12pt}
 \textcolor{red}{***Question 2 to Luca/Massi: Not knowing which parameters you include into the msg exchange between Sardex and debitors I wrote the rules using only locations one needs from the logical point of view to unambiguously identify the transfer and its transaction. So I have used otp as an identifier for a pending transaction--of form (otp,(transfer,tt))--and have not included any garbage collection for PendingTransaction but simply placed upon its confirmation a pending transaction (completed by the date) into the Ledger. Is this abstraction ok or do other parameters come into play?} 
 
 \textcolor{red}{NB. I also inserted a msg to the debitor in case of insufficient balance. Is this what the system does? If not we have to delete that
 clause.***}
+
+\textcolor{red}{PS. I noticed that a rule is needed in case a debit request is REJECTED by the debitor. Is my guess about what Sardex does in this case correct? If not, please correct me.***}
 \vspace{12pt}
 
 
@@ -361,6 +391,27 @@ $availBalance$ is an example of a derived function, i.e. a dynamic function with
 \section{User Operations}
 \label{sect:userops}
 
+Users can $\ASM{Send}$ requests which appear as input for the Sardex system. To $\ASM{Send}(CreditPreviewReq(transfer))$ or to $\ASM{Send}(DebitPreviewReq(transfer))$ is conditioned only by a correct definition of the $transfer$ parameter, definition the user supplies by filling in the corresponding  fields on the screen. The same holds mutatis mutandis for $\ASM{Send}(AccountHistReq(histParams))$ and $\ASM{Send}(BalanceReq(acc))$. The functionality is clear so that we do not model further this editing process.
+
+For Credit/Debit Perform requests the only relevant additional constraint is that they can be sent only after an ok-message for the corresponding Preview request has been received. We use a function $kind$ to extract from a $transfer$ parameter its $credit$ resp. $debit$ component.
+
+\begin{asm}
+\IF Received(YouMayProceedWith(transfer),from(sardex)) \THEN \+
+\IF kind(transfer)=credit \THEN \+
+   \ASM{Send}(CreditPerformReq(transfer), to(sardex)) \-
+\IF kind(transfer)=debit \THEN \+
+   \ASM{Send}(DebitPerformReq(transfer), to(sardex))  \-
+\ASM{Consume}(YouMayProceedWith(transfer))
+\end{asm}
+
+In case of a Debit operation a debitor has to confirm a received debit request by $\ASM{Send}$ing a $DebitAckMsg$; otherwise a $DebitRejectMsg$ is sent to the Sardex system.
+\begin{asm}
+\IF Received(ConfirmationReq(amount,creditor,otp),from(sardex)) \THEN \+
+   \IF Agreed(amount,creditor,otp)\+
+       \THEN ~ \ASM{Send}(DebitAckMsg(amount,creditor,otp), to(sardex)) \\
+       \ELSE ~ \ASM{Send}(DebitRejectMsg(amount,creditor,otp), to(sardex))\-
+   \ASM{Consume}(ConfirmationReq(amount,creditor,otp))
+\end{asm}
 
 \section{Permission Features}
 \label{sect:permission}
