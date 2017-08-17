@@ -35,7 +35,7 @@ $Received(msg,from(s))$ is a predicate which is true when the message $msg$ from
 
 We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $from(c)$ in $Received(msg, from(c))$ indicates that $sender(msg)=c$. Similarly, $to(c)$ in $\ASM{Send}(msg, to(c))$ denotes that $receiver(msg) = c$.
 
-The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} \textcolor{purple}{(Massi) A company can has at most an account for each account type.} Each such company may have a number of $acc$ounts which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:
+The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} Each such company may have a number of $acc$ounts\footnote{A company can have at most an account for each account type.} which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:
 
 \begin{asm}
 AccountType=\{credit, domu, fee\} \\
@@ -43,13 +43,12 @@ Account = \bigcup_{c \in SardexNet} Account(c)
 \end{asm}
 Therefore we name such accounts $creditAccount(c)$, $domuAccount(c)$, $feeAccount(c)$ (names which are defined if $c$ has the corresponding accounts). 
 
-There are two principal transfer operations, called Credit and Debit operation specified in Sect.~\ref{sec:creditop} and Sect.~\ref{sec:debitop}.
+There are two principal transfer operations, called Credit and Debit operation specified in Sec.~\ref{sec:creditop} and Sec.~\ref{sec:debitop}.
 
 \subsection{Sardex Behaviour for Credit Operations}
 \label{sec:creditop}
 
 A Credit operation is also called a push transfer. Its goal is to transfer an $amount$ via a specific $channel$ from one account to another. Sardex uses a $TransferType$ concept which allows one to impose on the transfer operations certain conditions, including priorities. The parameters of a transfer type $tt$ which are relevant for the Sardex business logic are the following:\footnote{The implementation in Cyclos has more parameters we do not consider here.}
-
 \begin{itemize}
 	\item the $operation \in \{credit, debit\}$,
 	\item the $channel \in \{phone,website,pos\}$\footnote{$pos$ abbreviates point of sale.} through which the interaction between the user and Sardex takes place,
