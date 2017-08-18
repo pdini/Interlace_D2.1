@@ -19,16 +19,7 @@ In this section we describe the interaction of the Sardex system (also called si
 
 \subsection{Signature elements of B2B Operations}
 \label{signaturepaymtop}
-The actors of B2B operations are companies which interact with the Sardex system on a request/response basis using various 
-communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish
-between horizontal and hierarchical interaction. These features have
-been defined to satisfy the requirements of Interaction Computing
-formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of
-Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the
-definition of the communication network structure, using channels and
-a routing component, and a resource manager by specialized
-communicating ASMs) and the implementation see
-\url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
+The actors of B2B operations are companies which interact with the Sardex system on a request/response basis using various communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction. These features have been defined to satisfy the requirements of Interaction Computing formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the definition of the communication network structure, using channels and a routing component, and a resource manager by specialized communicating ASMs) and the implementation see \url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
 
 We keep the communication mechanism abstract. $\ASM{Send}(msg,to(a))$ denotes the operation of sending the $msg$ to agent $a$. 
 $Received(msg,from(s))$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. 
@@ -88,8 +79,7 @@ We denote this unique $tt$ as the value of the function $tt(operation,acc,acc',c
 \end{quote}
 
 
-Both payment operations Credit and Debit are instances of a request/response pattern with two phases, a first phase whose action is called Preview -- where only the permission for the transfer is checked (using a $transferTypeCheck$ function) but not the requested amount -- and  a second phase whose action is called Perform where also the amount is checked (using a $balanceCheck$ function). On the user side both actions are treated as stateless, on the Sardex system side only the Preview action is stateless. Here we make the -- for the user stateless -- two-phase interaction explicit by using two  types of user requests, say $CreditPreviewReq$ and $CreditPerformReq$, with corresponding Sardex rules $\ASM{CreditPreviewReq}$ and $\ASM{CreditPerformReq}$ to react to such requests. The user first sends a $CreditPreviewReq$uest and upon the positive system response the corresponding $CreditPerformReq$uest.  
-Sardex can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whose execution depends only on the parameters with which they are called. But for one successful credit request instance the two rules can be executed only in the indicated order, due to the intrinsic sequentiality of the two steps for the request.
+Both payment operations Credit and Debit are instances of a request/response pattern with two phases, a first phase whose action is called Preview -- where only the permission for the transfer is checked (using a $transferTypeCheck$ function) but not the requested amount -- and  a second phase whose action is called Perform where also the amount is checked (using a $balanceCheck$ function). On the user side both actions are treated as stateless, on the Sardex system side only the Preview action is stateless. Here we make the -- for the user stateless -- two-phase interaction explicit by using two  types of user requests, say $CreditPreviewReq$ and $CreditPerformReq$, with corresponding Sardex rules $\ASM{CreditPreviewReq}$ and $\ASM{CreditPerformReq}$ to react to such requests. The user first sends a $CreditPreviewReq$uest and upon the positive system response the corresponding $CreditPerformReq$uest. Sardex can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whose execution depends only on the parameters with which they are called. But for one successful credit request instance the two rules can be executed only in the indicated order, due to the intrinsic sequentiality of the two steps for the request.
 
 {\bf Remark}. In the $\ASM{CreditTransferReq}$ model we assume that its access to the two accounts $from, to$ is exclusive. This assumption plays the role of a constraint for the implementation and thus is an essential part of the specification. We do not model the corresponding synchronization mechanism (which guarantees the assumption) because its functionality is clear and it is well-known how to program it. 
 
@@ -100,16 +90,15 @@ Sardex can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whos
 \end{asm}
 
 
-
-We define the two core functions $transferTypeCheck$ and $balanceCheck$ of $\ASM{CreditTransferReq}$ abstractly, to satisfy a modular design approach, as yielding either a positive answer---for $transferTypeCheck$  the (in this case by the Transfer Type Welldefinedness property stated above well defined) matching type $tt$ and for $balanceCheck$  the answer ok---or some information on the reason why the check did not succeed. Since there may be several reasons for a failure, in case of failure the value of the two functions is a set of detected failure reasons, say elements of $TransferTypeError$ resp. $BalanceViolation$.  Out of this set an $ErrMsg$ can be constructed to provide the user with some information why the check did not succeed, tailoring the format and payload of error messages.  Below we illustrate this modular approach to exception handling by some characteristic examples.
+We define the two core functions $transferTypeCheck$ and $balanceCheck$ of $\ASM{CreditTransferReq}$ abstractly, to satisfy a modular design approach, as yielding either a positive answer -- for $transferTypeCheck$ (in this case by the Transfer Type Welldefinedness property stated above) the matching type $tt$ and for $balanceCheck$  the answer OK -- or some information on the reason why the check did not succeed. Since there may be several reasons for a failure, in case of failure the value of the two functions is a set of detected failure reasons, say elements of $TransferTypeError$ resp. $BalanceViolation$.  Out of this set an $ErrMsg$ can be constructed to provide the user with some information why the check did not succeed, tailoring the format and payload of error messages.  Below we illustrate this modular approach to exception handling by some characteristic examples.
 
 
 \begin{asm}
 \ASM{CreditPreviewReq}((channel,from,to,amount,custFlds),mbr)  =\+
   \IF  Received(CreditPreviewReq
-        (credit,channel,from,to,amount,custFlds),f rom(mbr)) \THEN \+  
-    \LET transfer=(credit,channel,from,to,amount,custFlds) \\
-    \LET ttRes=transferTypeCheck(transfer)  \+
+        (credit,channel,from,to,amount,custFlds),from(mbr)) \THEN \+  
+    \LET transfer = (credit,channel,from,to,amount,custFlds) \\
+    \LET ttRes = transferTypeCheck(transfer)  \+
       \IF ttRes \not \in TransferType \THEN \+   
          \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
       \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),to(mbr))\-
@@ -131,11 +120,11 @@ Match(tt,transfer) \IF \+
 \end{asm}
 
 
-The $Match$ predicate is extended in Sect.~\ref{sec:debitop} for the first transfer parameter $debit$ (instead of $credit$).\footnote{This is the reason why the definition here considers only the $\IF$ case instead of stating $\IFF$.} The set of possible $TransferTypeError$s can be defined for the various cases of interest where
+The $Match$ predicate is extended in Sec.~\ref{sec:debitop} for the first transfer parameter $debit$ (instead of $credit$).\footnote{This is the reason why the definition here considers only the $\IF$ case instead of stating $\IFF$.} The set of possible $TransferTypeError$s can be defined for the various cases of interest where
 the $Match(tt,transfer)$ condition is violated for whatever $tt \in TransferType$.
 
 
-Since Sardex when responding to a $CreditPreviewReq$uest does not record the data (due to the requirement of the stateless Preview response character), when elaborating a $CreditPerformReq$uest the system in a first step must redo the $transferTypeCheck$. In the case of a positive check result, as part of the $transaction$ which is added to the $Ledger$, besides the $transfer$ parameters also the computed transfer type is recorded together with the transfer date (which is computed by the system as value of a location say $today$ when the credit request is performed). The function $transaction$ denotes the final transaction corresponding to the given $transfer$, its date and transfer type. 
+Since Sardex when responding to a $CreditPreviewReq$uest does not record the data (due to the requirement of the stateless Preview response character), when elaborating a $CreditPerformReq$uest the system in a first step must redo the $transferTypeCheck$. In the case of a positive check result, as part of the $transaction$ which is added to the $Ledger$, besides the $transfer$ parameters also the computed transfer type is recorded together with the transfer date (which is computed by the system as value of a location, say $today$, when the credit request is performed). The function $transaction$ denotes the final transaction corresponding to the given $transfer$, its date and transfer type. 
 
 To formulate error conditions for the $balanceCheck$ we need a function $availBalance(acc)$ which yields the amount of money that is currently available in the $acc$ to be spent. It is defined together with the related current balance function $balance(acc)$ in Sect.~\ref{sect:accHistory}. $Receivable(amount,acc)$ checks whether the destination of the transfer by receiving the $amount$ would exceed its upper Sardex limit $upperLimit(acc)$.
 
@@ -148,16 +137,16 @@ To formulate error conditions for the $balanceCheck$ we need a function $availBa
       \IF ttRes \not \in TransferType \THEN \+ \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
        \ELSE~ 
        \LET bal = balanceCheck(from, to, amount) \+
-              \IF bal=ok \+
+              \IF bal = OK \+
                  \THEN \+
                       \ASM{Append}(transaction(transfer,ttRes,today),Ledger)\\
                       \ASM{Send}(Confirmed(transfer),to(mbr))\-
                 \ELSE ~ \ASM{Send}(ErrMsg(transfer,bal),to(mbr))\dec\dec\-
     \ASM{Consume}(CreditPerformReq(channel,from,to,amount,custFlds),from(mbr)) \dec\-
 \WHERE \+
-balanceCheck(from, to, amount) \in \{Ok\} 
+balanceCheck(from, to, amount) \in \{OK\} 
                   \cup Powerset(BalanceViolation)\\
-balanceCheck(from, to, amount) = Ok \IFF 
+balanceCheck(from, to, amount) = OK \IFF 
          amountCond(ttRes)(amount) =true \AND \+
          availBalance(from) \geq amount  \AND Receivable(amount,to)\-
 ViolatesAmountCond(amount) \IF  amountCond(ttRes)(amount) = false \\
@@ -220,7 +209,7 @@ Match(tt,(debit,channel,accCred,accDeb,cFilds)) \IFF \+ Match(tt,(credit,channel
 Or do you need for some reason to distinguish between a credit operation done by the creditor and a debit operation alloowed by him (in which case the above definition fits)?***}
 \vspace{12pt}
 
-If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-phase request/response interaction is started, this time with the system as requestor with the $debitor$ to respond. More precisely upon receiving the $DebitPerformReq$uest from the $creditor$, the system after a successful  $transferTypeCheck$ executes a $balanceCheck$, for which we can use the same abstract function as for Credit operations but with interchanged source/destination parameters; in other words, the system checks whether from the $creditAccount(debitor)$ a corresponding Credit operation can be performed. If this check succeeds the system inserts the transaction without further ado if the amount is small (less than 100). Otherwise it creates a $OneTimePassword$ $otp$, records this $otp$ with the transaction (including the computed transfer type) as pending transaction and sends the $otp$  with an agreement request to the $debitor$. It then waits for a confirmation.
+If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-phase request/response interaction is started, this time with the system as requestor with the $debitor$ to respond. More precisely, upon receiving the $DebitPerformReq$uest from the $creditor$, the system after a successful  $transferTypeCheck$ executes a $balanceCheck$, for which we can use the same abstract function as for Credit operations but with interchanged source/destination parameters; in other words, the system checks whether from the $creditAccount(debitor)$ a corresponding Credit operation can be performed. If this check succeeds the system inserts the transaction without further ado if the amount is small (less than 100). Otherwise it creates a $OneTimePassword$ $otp$, records this $otp$ with the transaction (including the computed transfer type) as pending transaction and sends the $otp$  with an agreement request to the $debitor$. It then waits for a confirmation.
 
 
 \begin{asm}
