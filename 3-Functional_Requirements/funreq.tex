@@ -15,11 +15,11 @@ We specify the core payment and related history operations of the Sardex system.
 \section{Core Payment Operations}
 \label{sect:paymtops}
 
-In this section we describe the interaction of the Sardex system (also called simply Sardex)  with users. We consider here B2B operations, leaving the consideration of operations between a company and either employees or consumers for a later phase. Sect.~\ref{signaturepaymtop} explains the basic data types,  Sect.~\ref{sec:creditop} the credit and  Sect.~\ref{sec:debitop} the debit operation.
+In this section we describe the interaction of the Sardex system (also called simply Sardex)  with users. We consider here only B2B operations, leaving the consideration of operations between a $Company$ and either $Employee$s or $Consumer$s for a later phase. Sect.~\ref{signaturepaymtop} explains the basic data types,  Sect.~\ref{sec:creditop} the credit and  Sect.~\ref{sec:debitop} the debit operation.
 
 \subsection{Signature elements of B2B Operations}
 \label{signaturepaymtop}
-The actors of B2B operations are companies which interact with the Sardex system on a request/response basis using various communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction. These features have been defined to satisfy the requirements of Interaction Computing formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the definition of the communication network structure, using channels and a routing component, and a resource manager by specialized communicating ASMs) and the implementation see \url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
+The actors of B2B operations are companies (elements of the set $Company$) which interact with the Sardex system on a request/response basis using various communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction. These features have been defined to satisfy the requirements of Interaction Computing formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the definition of the communication network structure, using channels and a routing component, and a resource manager by specialized communicating ASMs) and the implementation see \url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
 
 We keep the communication mechanism abstract. $\ASM{Send}(msg,to(a))$ denotes the operation of sending the $msg$ to agent $a$. 
 $Received(msg,from(s))$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. 
@@ -49,7 +49,7 @@ A Credit operation is also called a push transfer. Its goal is to transfer an $a
 	\item conditions on so-called custom fields.
 \end{itemize}
 
-$CustField$ is a set of typed variables, with or without parameters, in ASM terminology a set of 0-ary or $n$-ary functions (with $n>0$) whose values are of an indicated type. They serve to encode customer information on the reason of a transfer, e.g. the number and date of the bill to be paid. For each transfer type its $custFields$ (if there are any) are of two kinds, compulsory or optional. The $custFieldCond$ition of a transfer type is a formula with its compulsory custom fields as arguments. For a $transfer$ to $Match$ a transfer type $tt$ means in particular that its $custFieldCond(tt,custFields(transfer))$ evaluates to true, where $custFields(transfer)$ resp. $custFields(tt)$  denotes the values of the custom fields in the $transfer$ resp. transfer type $tt$. As a consequence if a transfer type $tt$ comes without or only with optional custom fields, then the $custFieldCond$ with $tt$ as first argument is empty, i.e. simply true.
+$CustField$ is a set of typed variables, with or without parameters, in ASM terminology a set of 0-ary or $n$-ary functions (with $n>0$) whose values are of an indicated type. They serve to encode customer information on the reason of a transfer, e.g. the number and date of the bill to be paid. For each transfer type $tt$ its $custFields(tt)$ (if there are any) are of two kinds, compulsory or optional. Optional fields do not affect the $custFieldCond$ition of a transfer type. For a $transfer$ to $Match$ a transfer type $tt$ means in particular that its $custFieldCond(tt,custFields(transfer))$ evaluates to true, where $custFields(transfer)$ denotes the values of the custom fields in the $transfer$. As a consequence if a transfer type $tt$ comes without or only with optional custom fields, then the $custFieldCond$ with $tt$ as first argument is empty, i.e. simply true.
 
 We retrieve for each parameter the corresponding information from a transfer type $tt$ by an appropriate function:
 
@@ -71,7 +71,7 @@ One can imagine $TransferType$ as a table where each row is named and contains t
 	{\bf Transfer Type Welldefinedness}. For each transfer $operation \in \{credit,debit\}$, each pair of accounts $acc,acc'$ and each $channel$ there is at most one $tt \in TransferType$, i.e. at most one $tt$ which satisfies
 	\begin{itemize}
 		\item $oper(tt) = operation$,
-		\item chan(tt)=channel,
+		\item $chan(tt)=channel$,
 		\item $sourceType(tt)=accountType(acc)$,
 		\item $destType(tt)=accountType(acc')$.
 	\end{itemize} 
@@ -156,11 +156,6 @@ ViolatesUpperLimit(to,amount) \IF ~\NOT Receivable(amount,to) \\
 \end{asm}
 
 
-\vspace{12pt}
-\textcolor{red}{***Question for confirmation to Luca/Massi: In the case of a successfully operated transfer I have inserted a confirmation msg to the user. The same in the
-DebitPerformReq and the DebitAcknExec rule in case of Append. I guess this is what the system does. Is this correct?***}
-\vspace{12pt}
-
 
 \subsection{Sardex Behaviour for Debit Operations}
 \label{sec:debitop}
@@ -180,7 +175,7 @@ Sardex can execute at any moment any of these rules whose execution depends only
 \end{asm}
 
 
-Both rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ in their first step make a $transferTypeCheck$ for the account of type $credit$ of the $debitor$, defined by extending the $Match$ predicate for $debit$ transfer operations. 
+Both rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ in their first step make a $transferTypeCheck$ for the account of type $credit$ of the $debitor$, defined by extending the $Match$ predicate for $debit$ transfer operations. This extension works for B2B operations; it also works for B2E but not for E2B or E2E. In other words $Employee$s are not allowed to request (i.e. appear as first argument of) a Debit transfer.
 
 \begin{asm}
 \ASM{DebitPreviewReq}((debitor,channel,amount,custFlds),creditor)=\+
@@ -201,15 +196,9 @@ Both rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ in their first st
           sourceType(tt)=accountType(from) \AND destType(tt)=accountType(to) \AND \\
               custFieldCond(tt,custFlds)=true
 \end{asm}
-\vspace{12pt}
-\textcolor{red}{***Question 1 to Luca/Massi: This is an Occam's razor question (avoid blow up of number of tts), but probably shows you my ignorance in the matter. I still wonder why in our last skype conversation you confirmed the above definition of Match for the debit case. I would have thought that from the point of view of transfer type check, a Debit operation is symmetric to a Credit operation so that it is reducible to it, in the sense that I would have defined 
-\begin{asm}
-Match(tt,(debit,channel,accCred,accDeb,cFilds)) \IFF \+ Match(tt,(credit,channel,accDeb,accCred,cFilds))
-\end{asm}
-Or do you need for some reason to distinguish between a credit operation done by the creditor and a debit operation alloowed by him (in which case the above definition fits)?***}
-\vspace{12pt}
 
-If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-phase request/response interaction is started, this time with the system as requestor with the $debitor$ to respond. More precisely, upon receiving the $DebitPerformReq$uest from the $creditor$, the system after a successful  $transferTypeCheck$ executes a $balanceCheck$, for which we can use the same abstract function as for Credit operations but with interchanged source/destination parameters; in other words, the system checks whether from the $creditAccount(debitor)$ a corresponding Credit operation can be performed. If this check succeeds the system inserts the transaction without further ado if the amount is small (less than 100). Otherwise it creates a $OneTimePassword$ $otp$, records this $otp$ with the transaction (including the computed transfer type) as pending transaction and sends the $otp$  with an agreement request to the $debitor$. It then waits for a confirmation.
+
+If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-phase request/response interaction is started, this time with the system as requestor with the $debitor$ to respond. More precisely, upon receiving the $DebitPerformReq$uest from the $creditor$, the system after a successful  $transferTypeCheck$ executes a $balanceCheck$, for which we can use the same abstract function as for Credit operations but with interchanged source/destination parameters; in other words, the system checks whether from the $creditAccount(debitor)$ a corresponding Credit operation can be performed. If this check succeeds the system inserts the transaction without further ado if the amount is small (less than 100). Otherwise it creates a $OneTimePassword$ $otp$, records its birthtime (the beginning of its lifetime), records the $otp$ with the transaction (including the computed transfer type) as pending transaction and sends the $otp$  with an agreement request to the $debitor$. It then waits for a confirmation.
 
 
 \begin{asm}
@@ -229,6 +218,7 @@ If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-pha
                    \ASM{Send}(Confirmed(transfer,ttRes,today),to(creditor))\\
                    \ASM{Send}(Confirmed(transfer,ttRes,today),to(debitor))\-
               \ELSE ~ \LET otp= \NEW(OneTimePassword)\+
+                  birthTime(otp):=now \mbox{ // current system time}\\
                   \ASM{Insert}((otp,transaction(transfer,ttRes)),PendingTransaction)\\ 
                    status((otp,transaction(transfer,ttRes))):=pending \\
                    \ASM{Send}(ConfirmationReq
@@ -238,13 +228,13 @@ If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-pha
 \end{asm}
              
 When the $otp$ is acknowledged (i.e. resent) by the $debitor$ 
-the system updates the transaction status from $pending$ to $performed$ and 
-$\ASM{Append}$s the transaction to the $Ledger$ with the current date $today$. When the system is waiting for an $otp$ confirmation the $debitor$ is expected to send, this member may instead try to make another Credit transfer. In this case it could be that only one, Credit or Debit, is still possible due to the $debitor$'s account balance. For this reason, when the pending transaction is confirmed, the $balanceCheck$  (but not any more the $transferTypeCheck$) is performed once more and only then is the transaction put into the $Ledger$.  
+within the $lifetimeForOTPs$ forseen for one time passwords, the system updates the transaction status from $pending$ to $performed$ and 
+$\ASM{Append}$s the transaction to the $Ledger$ with the current date $today$. When the system is waiting for an $otp$ confirmation the $debitor$ is expected to send, this member may instead try to make another Credit transfer. In this case it could be that only one, Credit or Debit, is still possible due to the $debitor$'s account balance. For this reason, when the pending transaction is confirmed, the $balanceCheck$  (but not any more the $transferTypeCheck$) is performed once more and only when it succeeds is the transaction put into the $Ledger$. The one time password is deleted to avoid a later application of the rule which has to be applied in case of an $Expired(otp)$. 
               
  \begin{asm}  
  \ASM{DebitAckExec} =\+           
 \IF Received
-     (DebitAckMsg(amount,creditor,otp),from(debitor)) \THEN \+ 
+     (DebitAckMsg(amount,creditor,otp),from(debitor)) and \NOT Expired(otp) \THEN \+ 
   \IF ~ \THEREISNO t \in PendingTransaction \WITH fst(t)=otp\footnote{$fst$ denotes the first element of a sequence, here of a pair $(otp,t)$ of an $otp$ and the corresponding pending transaction $t$.} \+
      \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),to(debitor)) \\
   \ELSE ~\+
@@ -259,34 +249,32 @@ $\ASM{Append}$s the transaction to the $Ledger$ with the current date $today$. W
                 status(t):=performed \\
                 \ASM{Append}((transf,today),Ledger) \\
                 \ASM{Send}(Confirmed(transf,today),to(creditor))\\
-                \ASM{Send}(Confirmed(transf,today),to(debitor))\dec\dec\dec\dec\dec\-  
+                \ASM{Send}(Confirmed(transf,today),to(debitor))\dec\dec\-
+                 \ASM{Delete}(otp,OneTimePassword)\dec\dec\-  
   \ASM{Consume}(DebitAckMsg(amount,creditor,otp),from(debitor)) \dec\-
 \WHERE \+
-Small(amount) \mbox{ iff } amount<100
+Small(amount) \mbox{ iff } amount<100\\
+Expired(otp) \IFF now-birthtime(otp) > lifetimeForOTPs
 \end{asm}
 
-In case the debitor sends a $DebitRejectMsg$ Sardex will reject the $DebitPerformReq$ (by changing its status to $rejected$) and inform the $creditor$ about it.
+In case the $debitor$ does not confirm the Debit request 
+within the $lifetime$ forseen for OTPs,
+Sardex will reject the $DebitPerformReq$ (by changing its status to $rejected$) and inform the $creditor$ about it.
 
 \begin{asm}  
  \ASM{DebitRejectExec} =\+           
-\IF Received(DebitRejectMsg(amount,creditor,otp),from(debitor)) \THEN \+ 
+\IF otp \in OneTimePassword \AND Expired(otp)  \THEN \+ 
 \IF ~ \THEREISNO t \in PendingTransaction \WITH fst(t)=otp\+
      \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),to(debitor)) \\
   \ELSE ~\+
      \LET t=\iota t' (t'=(otp,transf) \mid t'  \in PendingTransaction)\\
      \IF status(t)=pending \THEN \+
           status(t):=rejected\\
-          \ASM{Send}(RejectMsg(Rejected(amount,creditor)),to(debitor))
-          \end{asm}
+          \ASM{Send}(ConfirmRejectMsg(Rejected(amount,creditor)),to(debitor))
+                          \dec\dec\-
+     \ASM{Delete}(otp,OneTimePassword)     
+\end{asm}
 
-\vspace{12pt}
-\textcolor{red}{***Question 2 to Luca/Massi: Not knowing which parameters you include into the msg exchange between Sardex and debitors I wrote the rules using only locations one needs from the logical point of view to unambiguously identify the transfer and its transaction. So I have used otp as an identifier for a pending transaction--of form (otp,(transfer,tt))--and have not included any garbage collection for PendingTransaction but simply placed upon its confirmation a pending transaction (completed by the date) into the Ledger. Is this abstraction ok or do other parameters come into play?} 
-
-\textcolor{red}{NB. I also inserted a msg to the debitor in case of insufficient balance. Is this what the system does? If not we have to delete that
-clause.***}
-
-\textcolor{red}{PS. I noticed that a rule is needed in case a debit request is REJECTED by the debitor. Is my guess about what Sardex does in this case correct? If not, please correct me.***}
-\vspace{12pt}
 
 
 
