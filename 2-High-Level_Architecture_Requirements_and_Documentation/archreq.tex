@@ -22,7 +22,90 @@ Those functional requirements will cover the very core functionalities like cred
 
 \subsection{Requirements Overview}\label{_requirements_overview}
 
-\ref{ch:funcreq}
+Next find a list of notes and high level requirements established before and during the first project meetings:
+
+\begin{itemize}
+
+\item[R1] Needs a transaction layer and a persistence layer
+
+\item[R2] Both layers must be extensible and scalable to a (global) distributed architecture, but must start decentralized in their initial (local) implementations
+
+\item[R3] Should be faster than Bitcoin, so a lightweight ledger (fragmented blockchain) approach is preferred
+
+\item[R4] Must be able to support intra-trade and inter-trade between multiple circuits. For example, the different circuits could be:
+\begin{itemize}
+	\item {different Mutual Credit (MC) circuits (Sardex \& Tibex)}
+	\item {different types of networks (MC circuit and Renewable Energy (RE) network)}
+\end{itemize}
+
+
+\item[R5] If possible, reuse existing open source solutions and frameworks, within our own
+customized ASM/ASIM framework
+
+\item[R6] Chain code (smart contracts code) should be separate from transaction layer for greater speed and efficiency
+
+\item[R7] Inter-circuit operations must avoid falling under the European PSD2 Directive.
+\begin{itemize}
+	\item (Giuseppe) This requirement may become obsolete if we use Stripe (\url{https://stripe.com/docs}) and Telegram (\url{https://telegram.org/blog/payments})
+	\item (Giuseppe) Note: currently there is one cloud instance of the DB. Inter-circuit payments are within the same DB (Cyclos 4) and are movements between different user groups. In future we may mirror or reproduce the network in a distributed manner and then start a node at least for each local network
+	\item (Paolo) The requirement of a single point of legal liability remains even if we use
+Stripe. Buyer and seller must each have a contract with the same entity (Sardex
+S.p.A.)
+\end{itemize}
+
+
+\item[R8] The Sardex blockchain should not have a native token: this is in order to separate unit of
+account and medium of exchange from the operation of platform (i.e. no mining, as in Bitcoin)
+and avoid seignorage (as in Ripple/XRP)
+\begin{itemize}
+	\item (Giuseppe) I meant it as a proposal, I am not sure the ecosystem couldn’t grow faster and healthier if a proper social protocol and seignorage would become possible (à la distributed XRP)
+	\item (Paolo) Anything that strengthens the store of value perception of the currency will make our job more difficult. I would stay away from it.
+	\item (Giuseppe) The rationale would be that a store of value is useful when there is no fiat or insurance that can save peers from the pain/cost of other peers defaulting
+\end{itemize}
+
+
+\item[R9] Smart contracts code should not be Turing-complete (this requirement might be deleted)
+\begin{itemize}
+	\item (Giuseppe) The turing completeness gives attackers on a publicly deployed network larger attack surfaces:
+	\begin{itemize}
+		\item \url{https://www.reddit.com/r/btc/comments/4p0gq3/why_turingcomplete_smart_contracts_are_doomed/}
+		\item \url{https://hackernoon.com/smart-contracts-turing-completeness-reality-3eb897996621}
+		\item \href{https://www.quora.com/How-is-Tezos-different-from-Ethereum}{Tezos}
+	\end{itemize}
+
+	\item (Egon) The undecidability of Turing-complete languages does not prevent the ability to prove specific properties of specific programs. In the ASM methodology, provability is refined along with the specifications as part of the iterative refinement process, down to the actual code.
+\end{itemize}
+
+
+\item[R10] Whatever solution we adopt, it should be compatible with the emerging InterLedger
+standard, which will play a role similar to the Internet in allowing different payment
+systems to interoperate. InterLedger has been approved by W3C.
+\begin{itemize}
+	\item (Giuseppe) Not 100% sure we need to take it into account since it mainly offers escrow functions https://interledger.org/rfcs/0001-interledger-architecture/
+	\item (Giuseppe) W3C WEB-PAYMENTS STANDARD API ----- super relevant \url{https://www.w3.org/TR/payment-request/}
+\end{itemize}
+
+
+\item[R11] Platform must involve the current regional MC systems and a global reward and digital asset system called Proximity and whose unit of account is called $\pi $ (Pi)
+
+\item[R12] {Proximity involves a reward points system whereby πs are awarded to users on the basis of behaviour that is beneficial for (their local) MC system. Gaining πs translates into the ability to trade farther away from the user’s geographical location. Upon reaching a certain threshold, the user is allowed to trade inter-circuit. There is a π cost associated with inter-circuit trade (see R13). There is also a commission in Euro on all inter-circuit trades (e.g. 2\%).}
+
+\item[R13] A likely scenario for the fee in πs is NOT to tie it to the transaction amount but, RATHER, to use it as a mechanism to offset the inter-circuit trade balances, i.e. in effect as a customs duty. Rather than just a cost, however, the fact that πs can be given as a reward as well as charged as duty means that as an instrument to shape the (inter-circuit) market they should be more
+effective than mere protectionist policy.
+
+\item[R14] After some discussion, it became clear that the new platform architecture should be closed, i.e. ‘permissioned’, both for the regional networks and for Proximity:
+\begin{itemize}
+	\item Open (permissionless) DLT networks like Ripple/XRP could not prevent external actors
+from speculating on Sardex digital assets like π
+	\item Private (permissioned) DLTs like Chain Core/Ivy (compatible with PSD2) are preferred
+\end{itemize}
+
+
+\item[R15] State objects must be immutable: this is important in order to prevent people going back on their commitments, for example the max number of credits they will accept (there are examples of blockchains whose previous blocks have been modified - Ethereum DAO Hack)
+
+\end{itemize}
+
+Detailed functional requirements can be found in the next chapter \{TODO: add ref\}
 
 \subsection{Quality Goals}\label{_quality_goals}
 
