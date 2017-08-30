@@ -105,7 +105,7 @@ from speculating on Sardex digital assets like π
 
 \end{itemize}
 
-Detailed functional requirements can be found in the next chapter \{TODO: add ref\}
+Detailed functional requirements can be found in the chapter \ref{ch:funreq}
 
 \subsection{Quality Goals}\label{_quality_goals}
 
@@ -157,6 +157,45 @@ Expectations\strut
 \bottomrule
 \end{longtable}
 
+\section{Solution Strategy}\label{section-solution-strategy}
+
+The strategy of how to get from a monolithic working implementation to a decentralized and later a fully fledged distributed ledger application, as during introduction mentioned, will be done over the use of Abstract State Machines (ASMs). They do not just offer defining functional requirements for the purpose of documentation (found in Chapter \ref{ch:funreq}) but also are able to directly derive a working implementation.
+
+Unfortunately plain ASMs have a quite narrow scope and are working only in their own scope and have no shared states. So it is not possible with them creating a decentralized or a even fully distributed environment where the new implementation can work in.
+
+The solution for the INTERLACE project is offered by the BIOMICS project which had as outcome a special extension of the ASMs named Abstract Interaction Machines (ASIMs) and a corresponding runtime environment called Interaction Computing Execution Framework (ICEF) \footnote{\url{https://github.com/biomics/icef}}.
+
+\textbf{Quoting the ICEF webpage:}
+\begin{quote}
+"This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs.
+
+The ICEF was developed in the STREP project BIOMICS which was financed by the European Comission in FP7 from October 1st, 2012 until March 31st, 2016.
+
+ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems.
+
+This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations."
+\end{quote}
+
+Although the additional language primitives offered by ICEF might not be needed the coreASIM implementation will be crucial for realizing the INTERLACE strategy.
+
+\subsection{Strategy Steps}\label{subsection-strategy-steps}
+
+\begin{enumerate}
+
+	\item Defining the functional requirements using the ASMs formal description language.
+	\item Translating the formal description to a working demo environment using ICEF/coreASIM.
+	\item Brining the coreASIM business logic together with the real world. That means to use the interaction capabilities of the framework to connect it to legacy application.
+	\item Test if the application still works and the translation to coreASIM has been working.
+	\item Translating the coreASIM implementation to a "real-world" application by creating e.g. a JAVA. application.
+	\item Developing a verifying strategy and verify the implemented "real-world" application.
+	\item Change the ASIM models to work in a distributed environment.
+	\item Adapt ASIM interfaces.
+	\item Adapt the "real-world" version.
+	\item Implement the new back-end logic using Open Source frameworks.
+	\item Test/Validate the new application against the new back-end.
+ 
+\end{enumerate}
+	
 %\section{Architecture
 %Constraints}\label{section-architecture-constraints}
 
