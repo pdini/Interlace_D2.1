@@ -21,10 +21,10 @@ In this section we describe the interaction of the Sardex system (also called si
 \label{signaturepaymtop}
 The actors of B2B operations are companies (elements of the set $Company$) which interact with the Sardex system on a request/response basis using various communication devices from whose technical details we abstract here. Therefore it comes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction. These features have been defined to satisfy the requirements of Interaction Computing formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the definition of the communication network structure, using channels and a routing component, and a resource manager by specialized communicating ASMs) and the implementation see \url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
 
-We keep the communication mechanism abstract. $\ASM{Send}(msg,to(a))$ denotes the operation of sending the $msg$ to agent $a$. 
-$Received(msg,from(s))$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. 
+We keep the communication mechanism abstract. $\ASM{Send}(msg,\TO :a)$ denotes the operation of sending the $msg$ to agent $a$. 
+$Received(msg,\FROM :s)$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. 
 
-We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $from(c)$ in $Received(msg, from(c))$ indicates that $sender(msg)=c$. Similarly, $to(c)$ in $\ASM{Send}(msg, to(c))$ denotes that $receiver(msg) = c$.
+We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $\FROM :c$ in $Received(msg, \FROM :c)$ indicates that $sender(msg)=c$. Similarly, $\TO :c$ in $\ASM{Send}(msg, \TO :c)$ denotes that $receiver(msg) = c$.
 
 The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} Each such company may have a number of $acc$ounts\footnote{A company can have at most an account for each account type.} which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:
 
@@ -96,14 +96,14 @@ We define the two core functions $transferTypeCheck$ and $balanceCheck$ of $\ASM
 \begin{asm}
 \ASM{CreditPreviewReq}((channel,from,to,amount,custFlds),mbr)  =\+
   \IF  Received(CreditPreviewReq
-        (credit,channel,from,to,amount,custFlds),from(mbr)) \THEN \+  
+        (credit,channel,from,to,amount,custFlds),\FROM :mbr) \THEN \+  
     \LET transfer = (credit,channel,from,to,amount,custFlds) \\
     \LET ttRes = transferTypeCheck(transfer)  \+
       \IF ttRes \not \in TransferType \THEN \+   
-         \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
-      \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),to(mbr))\-
+         \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),\TO :mbr)\-
+      \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),\TO :mbr)\-
     \ASM{Consume}(CreditPreviewReq
-        (credit,channel,from,to,amount,custFlds),f rom(mbr)) \dec\-
+        (credit,channel,from,to,amount,custFlds),\FROM :mbr) \dec\-
 \WHERE \+
   transferTypeCheck(transfer) \in \+
            \left\{\begin{array}{ll}
@@ -132,17 +132,17 @@ To formulate error conditions for the $balanceCheck$ we need a function $availBa
 \begin{asm}
 \ASM{CreditPerformReq}((channel,from,to,amount,custFlds),mbr)=\+
 \IF Received
-   (CreditPerformReq(credit,channel,from,to,amount,custFlds),from(mbr)) \THEN \+  \LET transfer=(credit,channel,from,to,amount,custFlds) \\
+   (CreditPerformReq(credit,channel,from,to,amount,custFlds),\FROM :mbr) \THEN \+  \LET transfer=(credit,channel,from,to,amount,custFlds) \\
     \LET ttRes=transferTypeCheck(transfer)  \+
-      \IF ttRes \not \in TransferType \THEN \+ \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(mbr))\-
+      \IF ttRes \not \in TransferType \THEN \+ \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),\TO :mbr)\-
        \ELSE~ 
        \LET bal = balanceCheck(from, to, amount) \+
               \IF bal = OK \+
                  \THEN \+
                       \ASM{Append}(transaction(transfer,ttRes,today),Ledger)\\
-                      \ASM{Send}(Confirmed(transfer),to(mbr))\-
-                \ELSE ~ \ASM{Send}(ErrMsg(transfer,bal),to(mbr))\dec\dec\-
-    \ASM{Consume}(CreditPerformReq(channel,from,to,amount,custFlds),from(mbr)) \dec\-
+                      \ASM{Send}(Confirmed(transfer),\TO :mbr)\-
+                \ELSE ~ \ASM{Send}(ErrMsg(transfer,bal),\TO :mbr)\dec\dec\-
+    \ASM{Consume}(CreditPerformReq(channel,from,to,amount,custFlds),\FROM : mbr) \dec\-
 \WHERE \+
 balanceCheck(from, to, amount) \in \{OK\} 
                   \cup Powerset(BalanceViolation)\\
@@ -180,14 +180,14 @@ Both rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ in their first st
 \begin{asm}
 \ASM{DebitPreviewReq}((debitor,channel,amount,custFlds),creditor)=\+
   \IF Received(DebitPreviewReq(debitor,channel,amount,custFlds),
-                   from(creditor)) \THEN \+  
+                   \FROM :creditor) \THEN \+  
      \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
      \LET transfer=(debit,channel,from,to,amount,custFlds)\\  
      \LET ttRes=transferTypeCheck(transfer) \+
-        \IF ttRes \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(creditor))\-
-       \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),to(creditor))\dec\-
+        \IF ttRes \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),\TO :creditor)\-
+       \ELSE~  \ASM{Send}(YouMayProceedWith(transfer),\TO :creditor)\dec\-
    \ASM{Consume}(DebitPreviewReq(debitor,channel,amount,custFlds),
-                   from(creditor)) \-
+                   \FROM :creditor) \-
 \WHERE \+
    Match(tt,transfer) \IF \+
       oper(tt)=debit \AND chan(tt)=channel \AND \\
@@ -204,27 +204,27 @@ If the $transferTypeCheck$ in a $ \ASM{DebitPerformReq}$uest succeeds, a two-pha
 \begin{asm}
 \ASM{DebitPerformReq}((debitor,channel,amount,custFlds),creditor)=\+
 \IF  Received(DebitPerformReq(debitor,channel,amount,custFlds),
-                 from(creditor)) \THEN \+     
+                 \FROM :creditor) \THEN \+     
   \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
   \LET transfer=(debit,channel,from,to,amount,custFlds) \\
   \LET ttRes=transferTypeCheck(transfer) \+
-        \IF ttRes \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),to(creditor))\-
+        \IF ttRes \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,ttRes)),\TO :creditor)\-
        \ELSE~  \LET bal = balanceCheck(to, from, amount)  
                 \mbox{ // check balance}\+
-       \IF bal \not =ok \THEN ~ \ASM{Send}(ErrMsg(transfer,bal),to(creditor))   \ELSE \+
+       \IF bal \not =ok \THEN ~ \ASM{Send}(ErrMsg(transfer,bal),\TO :creditor)   \ELSE \+
          \IF Small(amount) \+
               \THEN \+ 
                    \ASM{Append}(transaction(transfer,ttRes,today),Ledger) \\
-                   \ASM{Send}(Confirmed(transfer,ttRes,today),to(creditor))\\
-                   \ASM{Send}(Confirmed(transfer,ttRes,today),to(debitor))\-
+                   \ASM{Send}(Confirmed(transfer,ttRes,today),\TO :creditor)\\
+                   \ASM{Send}(Confirmed(transfer,ttRes,today),\TO : debitor)\-
               \ELSE ~ \LET otp= \NEW(OneTimePassword)\+
                   birthTime(otp):=now \mbox{ // current system time}\\
                   \ASM{Insert}((otp,transaction(transfer,ttRes)),PendingTransaction)\\ 
                    status((otp,transaction(transfer,ttRes))):=pending \\
                    \ASM{Send}(ConfirmationReq
-                    (amount,creditor,otp),to(debitor))\dec\dec\dec\dec\-
+                    (amount,creditor,otp),\TO :debitor)\dec\dec\dec\dec\-
    \ASM{Consume}(DebitPerformReq(debitor,channel,amount,custFlds),
-                 from(creditor))
+                 \FROM :creditor)
 \end{asm}
              
 When the $otp$ is acknowledged (i.e. resent) by the $debitor$ 
@@ -234,24 +234,24 @@ $\ASM{Append}$s the transaction to the $Ledger$ with the current date $today$. W
  \begin{asm}  
  \ASM{DebitAckExec} =\+           
 \IF Received
-     (DebitAckMsg(amount,creditor,otp),from(debitor)) and \NOT Expired(otp) \THEN \+ 
+     (DebitAckMsg(amount,creditor,otp),\FROM :debitor) and \NOT Expired(otp) \THEN \+ 
   \IF ~ \THEREISNO t \in PendingTransaction \WITH fst(t)=otp\footnote{$fst$ denotes the first element of a sequence, here of a pair $(otp,t)$ of an $otp$ and the corresponding pending transaction $t$.} \+
-     \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),to(debitor)) \\
+     \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),\TO :debitor) \\
   \ELSE ~\+
      \LET t=\iota t' (t'=(otp,transf) \mid t'  \in PendingTransaction)\footnote{Hilbert's $\iota$-operator $\iota x P(x)$ denotes the unique $x$ which satisfies property  $P$.}\\
      \IF status(t)=pending \THEN \+
         \LET from=creditAccount(debitor), to=creditAccount(creditor)\\
         \LET bal = balanceCheck(from, to, amount) \+
           \IF bal \not =ok \THEN \+
-             \ASM{Send}(ErrMsg((transfer,bal),to(creditor))\\
-             \ASM{Send}(ErrMsg((transfer,bal),to(debitor)) \\
+             \ASM{Send}(ErrMsg((transfer,bal),\TO :creditor)\\
+             \ASM{Send}(ErrMsg((transfer,bal),\TO :debitor) \\
               \ELSE \+
                 status(t):=performed \\
                 \ASM{Append}((transf,today),Ledger) \\
-                \ASM{Send}(Confirmed(transf,today),to(creditor))\\
-                \ASM{Send}(Confirmed(transf,today),to(debitor))\dec\dec\-
+                \ASM{Send}(Confirmed(transf,today),\TO :creditor)\\
+                \ASM{Send}(Confirmed(transf,today),\TO :debitor)\dec\dec\-
                  \ASM{Delete}(otp,OneTimePassword)\dec\dec\-  
-  \ASM{Consume}(DebitAckMsg(amount,creditor,otp),from(debitor)) \dec\-
+  \ASM{Consume}(DebitAckMsg(amount,creditor,otp),\FROM :debitor) \dec\-
 \WHERE \+
 Small(amount) \mbox{ iff } amount<100\\
 Expired(otp) \IFF now-birthtime(otp) > lifetimeForOTPs
@@ -265,12 +265,12 @@ Sardex will reject the $DebitPerformReq$ (by changing its status to $rejected$) 
  \ASM{DebitRejectExec} =\+           
 \IF otp \in OneTimePassword \AND Expired(otp)  \THEN \+ 
 \IF ~ \THEREISNO t \in PendingTransaction \WITH fst(t)=otp\+
-     \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),to(debitor)) \\
+     \THEN  ~ \ASM{Send}(ErrMsg(IncorrectOtpFor(amount,creditor)),\TO :debitor) \\
   \ELSE ~\+
      \LET t=\iota t' (t'=(otp,transf) \mid t'  \in PendingTransaction)\\
      \IF status(t)=pending \THEN \+
           status(t):=rejected\\
-          \ASM{Send}(ConfirmRejectMsg(Rejected(amount,creditor)),to(debitor))
+          \ASM{Send}(ConfirmRejectMsg(Rejected(amount,creditor)),\TO :debitor)
                           \dec\dec\-
      \ASM{Delete}(otp,OneTimePassword)     
 \end{asm}
@@ -319,16 +319,16 @@ which satisfy the above-indicated properties. This is specified by the following
 
 \begin{asm}
 \ASM{AccountHistReq}=\+
-   \IF Received(AccountHistReq(acc, period, counterPty, amountRange, custFld),from(c))    \THEN \+
+   \IF Received(AccountHistReq(acc, period, counterPty, amountRange, custFld),\FROM :c)    \THEN \+
      \IF c \not \in SardexNet \OR acc \not\in Account(c) \+
-       \THEN \ASM{Send}(ErrMsg(youHaveNoSuch(acc)),to(c))\\
+       \THEN \ASM{Send}(ErrMsg(youHaveNoSuch(acc)),\TO : c)\\
        \ELSE \+
        \LET T=\{t \in Ledger \mid (source(t) = acc \OR dest(t) = acc) \+
            \AND date(t) \in period \AND amount(t) \in amountRange \\
            \AND (\IF counterPty \not = All \THEN 
                counterParty(t, acc) \in  counterPty)\\
            \AND CustFldMatch(custFld, customField(t)) \} \IN \+
-                \ASM{Send} (T, to(c))\dec\dec\dec\-
+                \ASM{Send} (T, \TO : c)\dec\dec\dec\-
      \ASM{Consume}(AccountHistReq(acc, period, counterPty, amountRange, custField))
 \end{asm}
 
@@ -338,9 +338,9 @@ In addition, we forsee that, for performance and database management reasons, fr
 
 \begin{asm}
 \ASM{BalanceReq}=\+
- \IF Received(BalanceReq(acc)),from(mbr)) \THEN \+
+ \IF Received(BalanceReq(acc)),\FROM :mbr) \THEN \+
       \IF  mbr \not \in SardexNet \OR acc \not\in Account(mbr) \+     
-         \THEN ~ \ASM{Send}(ErrMsg(youHaveNoSuch(acc)),to(mbr))\\
+         \THEN ~ \ASM{Send}(ErrMsg(youHaveNoSuch(acc)),\TO :mbr)\\
          \ELSE  \+
              \LET In= \{t \in Ledger \mid dest(t) = acc 
                   \AND date(t) > balCertificationDate(acc) \} \+
@@ -352,7 +352,7 @@ In addition, we forsee that, for performance and database management reasons, fr
                 \sum_{t \in In} amount(t)   -  \sum_{t \in Out} amount(t)
                   + certifiedBal(acc)  \\
               \LET NoOfTransactions =  \mid In \mid + \mid Out \mid) \+
-             \ASM{Send} ((bal,NoOfTransactions,to(mbr)) \dec\dec\-
+             \ASM{Send} ((bal,NoOfTransactions,\TO :mbr) \dec\dec\-
          \ASM{Consume}(BalanceReq(acc))
 \end{asm}
 
@@ -372,20 +372,20 @@ Users can $\ASM{Send}$ requests which appear as input for the Sardex system. To 
 For Credit/Debit Perform requests the only relevant additional constraint is that they can be sent only after an ok-message for the corresponding Preview request has been received. We use a function $kind$ to extract from a $transfer$ parameter its $credit$ resp. $debit$ component.
 
 \begin{asm}
-\IF Received(YouMayProceedWith(transfer),from(sardex)) \THEN \+
+\IF Received(YouMayProceedWith(transfer),\FROM :sardex) \THEN \+
 \IF kind(transfer)=credit \THEN \+
-   \ASM{Send}(CreditPerformReq(transfer), to(sardex)) \-
+   \ASM{Send}(CreditPerformReq(transfer), \TO :sardex) \-
 \IF kind(transfer)=debit \THEN \+
-   \ASM{Send}(DebitPerformReq(transfer), to(sardex))  \-
+   \ASM{Send}(DebitPerformReq(transfer), \TO :sardex)  \-
 \ASM{Consume}(YouMayProceedWith(transfer))
 \end{asm}
 
 In case of a Debit operation a debitor has to confirm a received debit request by $\ASM{Send}$ing a $DebitAckMsg$; otherwise a $DebitRejectMsg$ is sent to the Sardex system.
 \begin{asm}
-\IF Received(ConfirmationReq(amount,creditor,otp),from(sardex)) \THEN \+
+\IF Received(ConfirmationReq(amount,creditor,otp),\FROM :sardex) \THEN \+
    \IF Agreed(amount,creditor,otp)\+
-       \THEN ~ \ASM{Send}(DebitAckMsg(amount,creditor,otp), to(sardex)) \\
-       \ELSE ~ \ASM{Send}(DebitRejectMsg(amount,creditor,otp), to(sardex))\-
+       \THEN ~ \ASM{Send}(DebitAckMsg(amount,creditor,otp), \TO :sardex) \\
+       \ELSE ~ \ASM{Send}(DebitRejectMsg(amount,creditor,otp), \TO :sardex)\-
    \ASM{Consume}(ConfirmationReq(amount,creditor,otp))
 \end{asm}
 
