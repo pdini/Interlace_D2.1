@@ -7,18 +7,21 @@ Eduard Hirsch and Thomas Heistracher
 \end{center}
 
 \section{About INTERLACE}
-The objective of INTERLACE is to use the Abstract State Interaction Machines framework (CoreASIM) open source output of the FP7 FET project BIOMICS to develop a decentralized transactional and ledger architecture demonstrator for B2B mutual credit. INTERLACE will add to the work already started by its coordinator, Sardex S.p.A., to develop this architecture.
-
+The objective of INTERLACE is to use the Abstract State Interaction Machines framework (CoreASIM)\footnote{\url{http://biomicsproject.eu/news/135-icef}} open source output of the FP7 FET project BIOMICS to develop a decentralized transactional and ledger architecture demonstrator for B2B mutual credit.
 
 \section{Introduction and Goals}\label{section-introduction-and-goals}
+Currently Sardex uses a well running payment platform which offers solid cooperation and financial transaction facilities. Nevertheless, the architecture has been built using a monolithic centralized approach which is going to be changed. The aim of the platform redesign is to move to decentralized and finally to a completely distributed architecture which is able to scale far beyond the current technically restricted implementations. Figure \ref{decentralizedarchitecture}
 
-Currently Sardex implements a well running payment platform which offers a solid cooperation and financial transaction facilities. Nevertheless, the architecture has been build using a monolithic centralized approach which is going to be changed.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=15cm]{Figures/Sardex_Institutional_Structure_V3}
+\caption{\small\textbf{Sardex's institutional architecture with current and future decentralization levels}}
+\label{decentralizedarchitecture}
+\end{figure}
 
-The aim of the platform redesign is to move to decentralized and finally to a completely distributed architecture which is able to scale far beyond the current technically restricted implementations.
+As mentioned above, the business logic will be formulated using the ASM method  \cite{BoergerStaerk2003} to develop executable models of the functional requirements. These models will be implemented in the \textbf{coreASIM} framework,\footnote{\url{http://biomicsproject.eu/news/135-icef}} where they can be validated before implementing them in a production environment (e.g.\ in Java).
 
-As mentioned in the introductory "About" the business logic will be formulated using "Abstract State Machines" to offer a common abstracted few of the functional requirements. Then those requirements will be transformed to for using the \textbf{coreASIM} framework which offers to run those models directly on a computer before implementing it in a productive environment.
-
-Those functional requirements will cover the very core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the back-end servers. The reason for that is to enable the \textbf{State Machines} to communicate directly with the current back-end. After the State Machines are mapping the current functionalities correctly, the new decentralized/distributed back-end will be developed. Finally when the new back-end is ready the State Machines will be changed in order to work with the new logic. In that way you will be able to test and verify the new implementations.
+The functional requirements addressed in this report cover the core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the back-end servers. The reason is to enable the ASIMs to communicate directly with the current back-end. After the ASIMs have been verified to execute the current functionalities correctly, the new decentralized/distributed back-end will be developed. Finally, when the new back-end is ready the ASIMs will be changed in order to work with the new logic.
 
 \subsection{Requirements Overview}\label{_requirements_overview}
 
