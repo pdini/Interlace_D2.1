@@ -5,7 +5,7 @@ misc/*.aux
 *.toc
 *.log
 !Front.pdf
-*.pdf
+main.pdf
 *.iml
 !.gitkeep
 *.synctex.gz
