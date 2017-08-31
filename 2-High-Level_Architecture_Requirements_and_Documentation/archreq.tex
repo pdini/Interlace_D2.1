@@ -3,14 +3,14 @@
 
 \vspace{-1cm}
 \begin{center}
-Eduard Hirsch and Thomas Heistracher
+Paolo Dini, Eduard Hirsch, Luca Carboni, Massimo Cireddu, Giuseppe Littera, Thomas Heistracher
 \end{center}
 
 \section{About INTERLACE}
 The objective of INTERLACE is to use the Abstract State Interaction Machines framework (CoreASIM)\footnote{\url{http://biomicsproject.eu/news/135-icef}} open source output of the FP7 FET project BIOMICS to develop a decentralized transactional and ledger architecture demonstrator for B2B mutual credit.
 
 \section{Introduction and Goals}\label{section-introduction-and-goals}
-Currently Sardex uses a well running payment platform which offers solid cooperation and financial transaction facilities. Nevertheless, the architecture has been built using a monolithic centralized approach which is going to be changed. The aim of the platform redesign is to move to decentralized and finally to a completely distributed architecture which is able to scale far beyond the current technically restricted implementations. Figure \ref{decentralizedarchitecture}
+Currently Sardex uses a well running payment platform which offers solid financial transaction facilities in support of B2B trade. Nevertheless, the architecture has been built using a monolithic centralized approach which is not scalable as the system grows in size. In this context, the `system' refers both to the 3500 users in Sardinia as well as the approximately 3000 members across the other 11 circuits in the other Italian regions and the 1500 individual users (members of the Business to Employee, B2E, programme). The aim of the platform redesign is to move to a decentralized and finally to a completely distributed architecture which is able to scale far beyond the capacity of the current implementation. Figure \ref{decentralizedarchitecture} shows the current and the first step in decentralization. It is too early to imagine what form the fully distributed architecture will take, especially since blockchain technology is being innovated and diversifying into different forks at incredible speed. Equally important is the principle according to which the technological architecture should be seen as reflecting and responding to the requirements set by the economic, financial, and governance model. Since this is also evolving, it is more important to develop a tight coupling between a formal but agile specification framework and the corresponding implementation than to have all the architectural answers now.
 
 \begin{figure}[htbp]
 \centering
@@ -19,96 +19,84 @@ Currently Sardex uses a well running payment platform which offers solid coopera
 \label{decentralizedarchitecture}
 \end{figure}
 
-As mentioned above, the business logic will be formulated using the ASM method  \cite{BoergerStaerk2003} to develop executable models of the functional requirements. These models will be implemented in the \textbf{coreASIM} framework,\footnote{\url{http://biomicsproject.eu/news/135-icef}} where they can be validated before implementing them in a production environment (e.g.\ in Java).
+A very powerful, flexible, and formal specification and modelling framework is the ASM method  \cite{BoergerStaerk2003} to develop executable models of the functional requirements. These models will be implemented in the \textbf{coreASIM} framework,\footnote{\url{http://biomicsproject.eu/news/135-icef}} where they can be validated before implementing them in a production environment (e.g.\ in Java).
+
+The INTERLACE proposal describes a blockchain architecture based on the Open Transaction protocol (OTX) \cite{Odom} as an intermediate solution between fully centralized and distributed architectures. OTX involves a pool of Auditor nodes to validate the transactions executed by each Notary node. The initial conception of the INTERLACE architecture was to use only one central Notary, as a first step from the current centralized server towards a more distributed architecture. For the persistence layer we originally examined the Lightweight Cryptocurrency Ledger (LCL) \cite{White2015} as an alternative to the Bitcoin blockchain. The idea of LCL is to store minimal information on the current state of the whole ledger in each block rather than requiring nodes to carry the whole history of block deltas as the Bitcoin blockchain does. This approach achieves continuity with the existing solution while also enabling scalability to multiple circuits (multiple Notaries) under the same mathematical and computational framework.
+
+Rather than replicating the functionality of Cyclos 4 in a decentralized or distributed manner, by implementing the OTX-LCL concepts from scratch, it makes sense to take advantage of the staggering levels of investment currently being made in blockchain technologies by several banking and industry consortia, especially since the best ones are open source, and build on existing frameworks. As of April 2017, just before INTERLACE started, the two most likely candidates for our purposes were IBM's Hyperledger Fabric\footnote{\url{https://hyperledger-fabric.readthedocs.io/en/latest/}}\cite{Cachin2016} and Corda.\footnote{\url{https://www.corda.net/}} Together, they can be described as bringing together the principles of OTX and LCL with the smart contracts of Ethereum.\footnote{\url{https://www.ethereum.org/}} However, an important difference is that these blockchain implementations are �permissioned�, they are not open (�permissionless�) like the Bitcoin or Ethereum blockchains. Although this suits the early decentralised implementation of the INTERLACE blockchain, it opens up governance questions that are currently being examined by Sardex S.p.A. First among these question is the possibility of establishing two separate legal entities:
+\begin{packed_item1}
+\item Sardex S.p.A. (SARDEX) will maintain its current ownership structure.
+\item A new non-profit legal entity, which we can refer to for now as Circuit Coop, or more loosely as sardex.net, may be formed in the near future to begin devolving the ownership of the commons\footnote{The Sardex circuit commons have not been defined yet, but they will constitute a new basis for shared ownership by all the members. An example could be solar panels owned by the coop and providing renewable energy that can only be bought with credits.} to the circuit members.
+\end{packed_item1}
+
+From a purely functional point of view, Hyperledger enables a given node to belong to multiple blockchain networks. This is of interest to us because in the governance framework SARDEX is defining at least two units to be stored on the blockchain are envisaged: SRD credits and a new meritocratic reward points system called `Proximity', implemented with tokens that are earned through altruistic behaviour and dubbed `$\pi$'. Corda is interesting because it separates what Hyperledger calls `chaincode', which implements the smart contracts, from the persistence layer. Thus, Corda comes with a `business flow' layer that provides greater flexibility to adapt to the great diversity of actors in the four partially overlapping networks and across different regions or even countries.
 
 The functional requirements addressed in this report cover the core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the back-end servers. The reason is to enable the ASIMs to communicate directly with the current back-end. After the ASIMs have been verified to execute the current functionalities correctly, the new decentralized/distributed back-end will be developed. Finally, when the new back-end is ready the ASIMs will be changed in order to work with the new logic.
 
 \subsection{Requirements Overview}\label{_requirements_overview}
-
-Next find a list of notes and high level requirements established before and during the first project meetings:
-
-\begin{itemize}
-
-\item[R1] Needs a transaction layer and a persistence layer
-
-\item[R2] Both layers must be extensible and scalable to a (global) distributed architecture, but must start decentralized in their initial (local) implementations
-
-\item[R3] Should be faster than Bitcoin, so a lightweight ledger (fragmented blockchain) approach is preferred
-
-\item[R4] Must be able to support intra-trade and inter-trade between multiple circuits. For example, the different circuits could be:
-\begin{itemize}
-	\item {different Mutual Credit (MC) circuits (Sardex \& Tibex)}
-	\item {different types of networks (MC circuit and Renewable Energy (RE) network)}
-\end{itemize}
-
-
-\item[R5] If possible, reuse existing open source solutions and frameworks, within our own
-customized ASM/ASIM framework
-
-\item[R6] Chain code (smart contracts code) should be separate from transaction layer for greater speed and efficiency
-
-\item[R7] Inter-circuit operations must avoid falling under the European PSD2 Directive.
-\begin{itemize}
-	\item (Giuseppe) This requirement may become obsolete if we use Stripe (\url{https://stripe.com/docs}) and Telegram (\url{https://telegram.org/blog/payments})
-	\item (Giuseppe) Note: currently there is one cloud instance of the DB. Inter-circuit payments are within the same DB (Cyclos 4) and are movements between different user groups. In future we may mirror or reproduce the network in a distributed manner and then start a node at least for each local network
-	\item (Paolo) The requirement of a single point of legal liability remains even if we use
-Stripe. Buyer and seller must each have a contract with the same entity (Sardex
-S.p.A.)
-\end{itemize}
-
-
-\item[R8] The Sardex blockchain should not have a native token: this is in order to separate unit of
-account and medium of exchange from the operation of platform (i.e. no mining, as in Bitcoin)
-and avoid seignorage (as in Ripple/XRP)
-\begin{itemize}
-	\item (Giuseppe) I meant it as a proposal, I am not sure the ecosystem couldn’t grow faster and healthier if a proper social protocol and seignorage would become possible (à la distributed XRP)
-	\item (Paolo) Anything that strengthens the store of value perception of the currency will make our job more difficult. I would stay away from it.
-	\item (Giuseppe) The rationale would be that a store of value is useful when there is no fiat or insurance that can save peers from the pain/cost of other peers defaulting
-\end{itemize}
-
-
-\item[R9] Smart contracts code should not be Turing-complete (this requirement might be deleted)
-\begin{itemize}
-	\item (Giuseppe) The turing completeness gives attackers on a publicly deployed network larger attack surfaces:
-	\begin{itemize}
-		\item \url{https://www.reddit.com/r/btc/comments/4p0gq3/why_turingcomplete_smart_contracts_are_doomed/}
-		\item \url{https://hackernoon.com/smart-contracts-turing-completeness-reality-3eb897996621}
-		\item \href{https://www.quora.com/How-is-Tezos-different-from-Ethereum}{Tezos}
-	\end{itemize}
-
-	\item (Egon) The undecidability of Turing-complete languages does not prevent the ability to prove specific properties of specific programs. In the ASM methodology, provability is refined along with the specifications as part of the iterative refinement process, down to the actual code.
-\end{itemize}
-
-
-\item[R10] Whatever solution we adopt, it should be compatible with the emerging InterLedger
-standard, which will play a role similar to the Internet in allowing different payment
-systems to interoperate. InterLedger has been approved by W3C.
-\begin{itemize}
-	\item (Giuseppe) Not 100% sure we need to take it into account since it mainly offers escrow functions https://interledger.org/rfcs/0001-interledger-architecture/
-	\item (Giuseppe) W3C WEB-PAYMENTS STANDARD API ----- super relevant \url{https://www.w3.org/TR/payment-request/}
-\end{itemize}
-
-
-\item[R11] Platform must involve the current regional MC systems and a global reward and digital asset system called Proximity and whose unit of account is called $\pi $ (Pi)
-
-\item[R12] {Proximity involves a reward points system whereby πs are awarded to users on the basis of behaviour that is beneficial for (their local) MC system. Gaining πs translates into the ability to trade farther away from the user’s geographical location. Upon reaching a certain threshold, the user is allowed to trade inter-circuit. There is a π cost associated with inter-circuit trade (see R13). There is also a commission in Euro on all inter-circuit trades (e.g. 2\%).}
-
-\item[R13] A likely scenario for the fee in πs is NOT to tie it to the transaction amount but, RATHER, to use it as a mechanism to offset the inter-circuit trade balances, i.e. in effect as a customs duty. Rather than just a cost, however, the fact that πs can be given as a reward as well as charged as duty means that as an instrument to shape the (inter-circuit) market they should be more
-effective than mere protectionist policy.
-
-\item[R14] After some discussion, it became clear that the new platform architecture should be closed, i.e. ‘permissioned’, both for the regional networks and for Proximity:
-\begin{itemize}
-	\item Open (permissionless) DLT networks like Ripple/XRP could not prevent external actors
-from speculating on Sardex digital assets like π
-	\item Private (permissioned) DLTs like Chain Core/Ivy (compatible with PSD2) are preferred
-\end{itemize}
-
-
-\item[R15] State objects must be immutable: this is important in order to prevent people going back on their commitments, for example the max number of credits they will accept (there are examples of blockchains whose previous blocks have been modified - Ethereum DAO Hack)
-
-\end{itemize}
-
-Detailed functional requirements can be found in the chapter \ref{ch:funreq}
+The requirements have drifted over time due to two causes. First, the technology is changing very quickly, so what we envisaged in terms of technologies at the time of the proposal writing is now obsolete; second, the governance, economic, and financial model of Sardex is \emph{also} evolving, so the high-level requirements themselves have changed relative to a year ago. Therefore, the requirements below will be instantiated in a specific development strategy to be detailed later in this chapter.
+\setcounter{table}{0}
+\setlength{\tabcolsep}{10pt}
+\begin{table}[htbp]
+\begin{centering}
+\small
+{\begin{tabular}{| l | l | }
+\hline
+\textbf{Req}	& \textbf{Description} \\
+\hline
+R1 &Needs a transaction layer and a persistence layer\\
+\hline
+R2 & Both layers must be extensible and scalable to a (global) distributed architecture, \\
+&\hspace{0.5cm}but must start decentralized in their initial (local) implementations\\
+\hline
+R3 &Should be faster than Bitcoin, so a lightweight ledger (fragmented blockchain) approach is preferred	\\
+\hline
+R4 &Must be able to support intra-trade and inter-trade between multiple circuits. For example, the \\
+&\hspace{0.5cm}different circuits could be: \\
+&\hspace{1cm}$\bullet$ different Mutual Credit (MC) circuits (Sardex \& Tibex)\\
+&\hspace{1cm}$\bullet$ different types of networks (MC circuit and Renewable Energy (RE) network)\\
+\hline
+R5 &If possible, reuse existing open source solutions and frameworks, within our own customized\\
+&\hspace{0.5cm}ASM/ASIM framework \\
+\hline
+R6 &Chain code (smart contracts code) should be separate from transaction layer for greater speed\\
+&\hspace{0.5cm}and efficiency \\
+\hline
+R7 &Inter-circuit operations must avoid falling under the European PSD2 Directive\\
+\hline
+R8 &The Sardex blockchain should not have a native token: this is in order to separate unit of account \\
+&\hspace{0.5cm}and medium of exchange from the operation of platform (i.e. no mining, as in Bitcoin) and avoid\\
+&\hspace{0.5cm}seignorage (as in Ripple/XRP)	\\
+\hline
+R9 &Smart contracts code can be Turing-complete. The undecidability of Turing-complete languages does\\
+&\hspace{0.5cm}not prevent the ability to prove specific properties of specific programs. In the ASM methodology,\\
+&\hspace{0.5cm}provability is refined along with the specifications as part of the iterative refinement process,\\
+&\hspace{0.5cm}down to the actual code.\\
+\hline
+R10 &Industry, Academia, NGO, non-profit, Social Movements\\
+\hline
+R11 &Platform must involve the current regional MC systems and a reward and digital asset system called\\
+&\hspace{0.5cm}Proximity and whose unit of account is called $\pi$\\
+\hline
+R12 &Proximity involves a reward points system whereby $\pi$s are awarded to users on the basis of\\
+&\hspace{0.5cm}behaviour that is beneficial for (their local) MC system. Gaining $\pi$s translates into the ability to\\
+&\hspace{0.5cm}trade farther away from the user's geographical location. Upon reaching a certain threshold,\\
+&\hspace{0.5cm}the user is allowed to trade inter-circuit.  \\
+\hline
+R13 &The new platform architecture should be closed, i.e.\ `permissioned', both for the regional networks\\
+&\hspace{0.5cm}and for Proximity: Open (permissionless) DLT networks like Ripple/XRP could not prevent\\
+&\hspace{0.5cm}external actors from speculating on Sardex digital assets like $\pi$. Private (permissioned) DLTs\\
+&\hspace{0.5cm}like Chain Core/Ivy (compatible with PSD2) are preferred \\
+\hline
+R14 &State objects must be immutable: this is important in order to prevent people going back on their\\
+&\hspace{0.5cm}commitments, for example the max number of credits they will accept (there are examples of\\
+&\hspace{0.5cm}blockchains whose previous blocks have been modified, such as the Ethereum DAO Hack)  \\
+\hline
+\end{tabular}}
+\caption{\small\textbf{Summary of initial high-level requirements}}
+\label{ReqTable}
+\end{centering}
+\end{table}
 
 \subsection{Quality Goals}\label{_quality_goals}
 
@@ -161,44 +149,44 @@ Expectations\strut
 \end{longtable}
 
 \section{Solution Strategy}\label{section-solution-strategy}
+The strategy of how to get from a monolithic working implementation to a decentralized and later a fully distributed ledger application is broken down in several steps, as outlined below.
 
-The strategy of how to get from a monolithic working implementation to a decentralized and later a fully fledged distributed ledger application, as during introduction mentioned, will be done over the use of Abstract State Machines (ASMs). They do not just offer defining functional requirements for the purpose of documentation (found in Chapter \ref{ch:funreq}) but also are able to directly derive a working implementation.
-
-Unfortunately plain ASMs have a quite narrow scope and are working only in their own scope and have no shared states. So it is not possible with them creating a decentralized or a even fully distributed environment where the new implementation can work in.
-
-The solution for the INTERLACE project is offered by the BIOMICS project which had as outcome a special extension of the ASMs named Abstract Interaction Machines (ASIMs) and a corresponding runtime environment called Interaction Computing Execution Framework (ICEF) \footnote{\url{https://github.com/biomics/icef}}.
-
-\textbf{Quoting the ICEF webpage:}
+Since the original ASMs work only in their own scope, it is not possible to create a decentralized or fully distributed environment with them. The solution for the INTERLACE project has been to use a special extension of the ASMs named Abstract Interaction Machines (ASIMs) developed by the BIOMICS project, and a corresponding runtime environment called Interaction Computing Execution Framework (ICEF) \footnote{\url{https://github.com/biomics/icef}}. As explained on the ICEF webpage:
 \begin{quote}
-"This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs.
-
-The ICEF was developed in the STREP project BIOMICS which was financed by the European Comission in FP7 from October 1st, 2012 until March 31st, 2016.
-
-ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems.
-
-This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations."
+\vspace{-0.3cm}
+This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs. The ICEF was developed in the STREP project BIOMICS which was financed by the European Comission in FP7 from October 1st, 2012 until March 31st, 2016. ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems. This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations.
 \end{quote}
 
-Although the additional language primitives offered by ICEF might not be needed the coreASIM implementation will be crucial for realizing the INTERLACE strategy.
+Although the additional language primitives offered by ICEF might not be needed, the coreASIM implementation will be crucial for realizing the INTERLACE strategy.
 
 \subsection{Strategy Steps}\label{subsection-strategy-steps}
 
 \begin{enumerate}
-
-	\item Defining the functional requirements using the ASMs formal description language.
-	\item Translating the formal description to a working demo environment using ICEF/coreASIM.
-	\item Brining the coreASIM business logic together with the real world. That means to use the interaction capabilities of the framework to connect it to legacy application.
-	\item Test if the application still works and the translation to coreASIM has been working.
-	\item Translating the coreASIM implementation to a "real-world" application by creating e.g. a JAVA. application.
-	\item Developing a verifying strategy and verify the implemented "real-world" application.
-	\item Change the ASIM models to work in a distributed environment.
+	\item Define the functional requirements of the business logic using the ASMs formal description language (this report).
+	\item Translate the formal description to a working demo environment using ICEF/coreASIM.
+	\item Connect the business logic modelled with ASMs and implemented in coreASIM to the real world. That means use the interaction capabilities of the framework to connect it to the existing legacy application used by SARDEX, Cyclos 4. This existing working architecture is summarized at a high level in Figure \ref{cyclosarchitecture}.
+	\item Test if the application and the translation to coreASIM work.
+	\item Translate the coreASIM implementation to a real-world application by creating e.g.\ a JAVA. application.
+	\item Develop a verification strategy and validate the implemented real-world application through component testing.
+	\item Select appropriate blockchain technologies for the next-generation infrastructure.
+	\item Develop ASIM specifications that model the distributed environment.
 	\item Adapt ASIM interfaces.
-	\item Adapt the "real-world" version.
+	\item Adapt the real-world version of the application to the new infrastructure.
 	\item Implement the new back-end logic using Open Source frameworks.
-	\item Test/Validate the new application against the new back-end.
- 
+	\item Test/Validate with real users the new application against the new back-end.
 \end{enumerate}
-	
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=17.5cm]{Figures/3-Tier_Cyclos_Architecture}
+\caption{\small\textbf{Existing 3-tier Cyclos 4 architecture used by SARDEX, based on Amazon Web Services}}
+\label{cyclosarchitecture}
+\end{figure}
+
+
+
+
 %\section{Architecture
 %Constraints}\label{section-architecture-constraints}
 
