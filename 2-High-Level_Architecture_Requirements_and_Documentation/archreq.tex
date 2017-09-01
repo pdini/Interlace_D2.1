@@ -102,9 +102,15 @@ R14 &State objects must be immutable: this is important in order to prevent peop
 \end{table}
 
 \subsection{Quality Goals}\label{_quality_goals}
+The new system will need to separate different functions that are needed in a circuit, such as transactions, search, ads, entities, and so forth, because they all have different SLAs. Therefore, a microservice architecture is the best approach.
+
+In the current architecture definition process, it is also important to avoid dependencies on specific technologies. This is because we are in the middle of a rather chaotic period of innovation in payment technologies. This is over and above an even more intense period of innovation in the blockchain space, so we are talking about two layers of very fast-moving technological innovations that we need to keep abreast of. Thus, we must be clever in making the right choices and in leaving open the possibility for changes in the technology we ourselves develop.
+
+Open source is a great philosophy and it is responsible for an amazingly fast evolution in Information Technology, but there is a cost. The success of an open source project depens in large part on the ability of the project to enthuse potential contributors. Therefore, we must not forget that our work must be attractive to other passionate developers. Also, great open source software has great documentation.
+
+In summary, when we write code, we must act responsibly in using best practices, stardards, and white papers. This help whoever wants to contribute at the start, and will ultimately help everyone develop high-quality software.
 
 \subsection{Stakeholders and their roles}\label{_stakeholders}
-
 \begin{itemize}
 	\item B:  Business
 	\item C:  Consumer
@@ -155,6 +161,7 @@ Expectations\strut
 The strategy of how to get from a monolithic working implementation to a decentralized and later a fully distributed ledger application is broken down in several steps, as outlined below.
 
 Since the original ASMs work only in their own scope, it is not possible to create a decentralized or fully distributed environment with them. The solution for the INTERLACE project has been to use a special extension of the ASMs named Abstract Interaction Machines (ASIMs) developed by the BIOMICS project, and a corresponding runtime environment called Interaction Computing Execution Framework (ICEF) \footnote{\url{https://github.com/biomics/icef}}. As explained on the ICEF webpage:
+
 \begin{quote}
 \small
 \vspace{-0.3cm}
@@ -164,6 +171,7 @@ This framework extends the original CoreASM modelling and execution framework to
 Although the additional language primitives offered by ICEF might not be needed, the CoreASIM implementation will be crucial for realizing the INTERLACE strategy.
 
 \subsection{Strategy Steps}\label{subsection-strategy-steps}
+The development strategy between now (M4) and the end of the project at M18 is as follows:
 
 \begin{quote}
 \small
@@ -184,12 +192,14 @@ Although the additional language primitives offered by ICEF might not be needed,
 \end{quote}
 
 
-\begin{figure}[htbp]
+
+\begin{sidewaysfigure}[p]
 \centering
-\includegraphics[width=17.5cm]{Figures/3-Tier_Cyclos_Architecture}
+\includegraphics[width=25cm]{Figures/3-Tier_Cyclos_Architecture}
 \caption{\small\textbf{Existing 3-tier Cyclos 4 architecture used by SARDEX, based on Amazon Web Services, and showing some of the levels of redundancy}}
 \label{cyclosarchitecture}
-\end{figure}
+\end{sidewaysfigure}
+
 
 
 
@@ -516,6 +526,15 @@ LCL
 \strut
 \end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
 Lightweight Cryptocurrency Ledger
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+SLA
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Service-Level Agreement
 \strut
 \end{minipage}
 
