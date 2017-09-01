@@ -156,6 +156,7 @@ The strategy of how to get from a monolithic working implementation to a decentr
 
 Since the original ASMs work only in their own scope, it is not possible to create a decentralized or fully distributed environment with them. The solution for the INTERLACE project has been to use a special extension of the ASMs named Abstract Interaction Machines (ASIMs) developed by the BIOMICS project, and a corresponding runtime environment called Interaction Computing Execution Framework (ICEF) \footnote{\url{https://github.com/biomics/icef}}. As explained on the ICEF webpage:
 \begin{quote}
+\small
 \vspace{-0.3cm}
 This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs. The ICEF was developed in the STREP project BIOMICS which was financed by the European Comission in FP7 from October 1st, 2012 until March 31st, 2016. ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems. This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations.
 \end{quote}
@@ -164,6 +165,8 @@ Although the additional language primitives offered by ICEF might not be needed,
 
 \subsection{Strategy Steps}\label{subsection-strategy-steps}
 
+\begin{quote}
+\small
 \begin{enumerate}
 	\item Define the functional requirements of the business logic using the ASMs formal description language (this report).
 	\item Translate the formal description to a working demo environment using ICEF/coreASIM.
@@ -178,6 +181,7 @@ Although the additional language primitives offered by ICEF might not be needed,
 	\item Implement the new back-end logic using Open Source frameworks.
 	\item Test/Validate with real users the new application against the new back-end.
 \end{enumerate}
+\end{quote}
 
 
 \begin{figure}[htbp]
@@ -391,24 +395,154 @@ Another risk comes from the fact that the INTERLACE project has a small budget a
 
 \section{Glossary}\label{section-glossary}
 
+{\small
 \begin{longtable}[]{@{}ll@{}}
 \toprule
-\begin{minipage}[b]{0.47\columnwidth}\raggedright\strut
-Term\strut
-\end{minipage} & \begin{minipage}[b]{0.47\columnwidth}\raggedright\strut
-Definition\strut
+\begin{minipage}[b]{0.2\columnwidth}\raggedright\strut
+\textbf{Term}\strut
+\end{minipage} & \begin{minipage}[b]{0.77\columnwidth}\raggedright\strut
+\textbf{Definition}\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
-\begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
-\textless{}Term-1\textgreater{}\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
-\textless{}definition-1\textgreater{}\strut
-\end{minipage}\tabularnewline
-\begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
-\textless{}Term-2\textgreater{}\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright\strut
-\textless{}definition-2\textgreater{}\strut
-\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Centralized
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Architecture that at a functional level has a central, single-owner server
+\strut
+\end{minipage}
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Decentralized
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Centralized architecture where some of the control and/or is devolved to nodes other than the central one
+\strut
+\end{minipage}
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Distributed
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Architecture where the control and functionality are distributed equally to all the nodes
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Blockchain
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Distributed ledger with different levels of replication depending on the variant
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Permissioned Blockchain
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Blockchain that requires login credentials. While at the infrastructural level the functionality is distributed onto multiple servers, the control is centralized
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Permissionless Blockchain
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Original distributed architecture of the blockchain (e.g.\ Bitcoin, Ethereum, etc.)
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Abstract State Machines (ASMs)
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Specification method that allows the definition of data structures that closely model the domain of interest, at the most appropriate level of abstraction, and with the required behaviour. Thus, the data structure concept includes also the definition of functions that operate on an ASM's data structure, thereby changing its state. Since ASMs are rigorously defined and executable (interpretable) they can be used to define executable models that can be used to verify the requirements and validate the model. Conceptually, ASMs can be thought of as analogous to finite-state machines, i.e.\ to a form of generalized automata. In the most general and abstract terms, ASMs can be thought of as a method to develop a customized programming language for a specific problem.
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Abstract State Interaction Machines (ASIMs)
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Extension of the ASM modelling framework to allow communication between different ASMs. ASIMs are ASMs that are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction. They can therefore be used to model an anynchronous, concurrent, distributed system.
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+CoreASIM
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Extension of the CoreASM execution environment for ASMs.
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+Mutual Credit
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+A type of currency that structurally highlights the nature of money as a social relation of credit and debt. It is sometimes called `multilater barter', but this is not correct. While -- like all currencies -- mutual credit does enable multilater exchange, it does not preclude profit margins, which are not easily quantified in barter. As credits perform the functions of medium of exchange, unit of account, store of value (across time), and means of payment (although they are not usually accepted for tax payments), they are a form of money.
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+SRD
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Sardex credits. SRD do not accrue interest on either positive or negative balances and are not convertible with Euros.
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+OTX
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Open Transactions Protocol
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+LCL
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Lightweight Cryptocurrency Ledger
+\strut
+\end{minipage}
+
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+LCL
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Lightweight Cryptocurrency Ledger
+\strut
+\end{minipage}\
+\tabularnewline\tabularnewline
+\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
+LCL
+\strut
+\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
+Lightweight Cryptocurrency Ledger
+\strut
+\end{minipage}
+
+
+
+
+
+
+
+\tabularnewline
 \bottomrule
 \end{longtable}
+}
