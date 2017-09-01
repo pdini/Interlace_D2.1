@@ -21,7 +21,7 @@ Currently Sardex uses a payment platform which offers solid financial transactio
 
 It is too early to imagine what form the fully distributed architecture will take, especially since blockchain technology is being innovated and is diversifying as different forks at incredible speed. Equally important is the principle according to which the technological architecture should be seen as reflecting and responding to the requirements set by the economic, financial, and governance model, and not the other way around. Since the economic, financial, and governance model is also evolving, it is more important to work towards a tight coupling (e.g.\ a compiler) between a formal but agile specification framework and the corresponding implementation than to have all the architectural answers now.
 
-As stated in the Introduction, we are using the ASM method  \cite{BoergerStaerk2003} to develop executable models of the functional requirements. These models will be implemented in the \textbf{coreASIM} framework,\footnote{\url{http://biomicsproject.eu/news/135-icef}} where they can be validated before implementing them in a production environment (e.g.\ in Java).
+As stated in the Introduction, we are using the ASM method  \cite{BoergerStaerk2003} to develop executable models of the functional requirements. These models will be implemented in the \textbf{CoreASIM} framework,\footnote{\url{http://biomicsproject.eu/news/135-icef}} where they can be validated before implementing them in a production environment (e.g.\ in Java).
 
 \subsection{Context and Previous Work}
 The INTERLACE proposal describes a blockchain architecture based on the Open Transaction protocol (OTX) \cite{Odom} as an intermediate solution between fully centralized and distributed architectures. OTX involves a pool of Auditor nodes to validate the transactions executed by each Notary node. The initial conception of the INTERLACE architecture was to use only one central Notary, as a first step from the current centralized server towards a more distributed architecture. For the persistence layer we originally examined the Lightweight Cryptocurrency Ledger (LCL) \cite{White2015} as an alternative to the Bitcoin blockchain. The idea of LCL is to store minimal information on the current state of the whole ledger in each block rather than requiring nodes to carry the whole history of block deltas as the Bitcoin blockchain does. This approach achieves continuity with the existing solution while also enabling scalability to multiple circuits (multiple Notaries) under the same mathematical and computational framework.
@@ -34,7 +34,7 @@ Rather than replicating the functionality of Cyclos 4 in a decentralized or dist
 
 From a purely functional point of view, Hyperledger enables a given node to belong to multiple blockchain networks. This is of interest to us because in the governance framework SARDEX is defining at least two units to be stored on the blockchain are envisaged: SRD credits and a new meritocratic reward points system called `Proximity', implemented with tokens that are earned through altruistic behaviour and dubbed `$\pi$'. Corda is interesting because it separates what Hyperledger calls `chaincode', which implements the smart contracts, from the persistence layer. Thus, Corda comes with a `business flow' layer that provides greater flexibility to adapt to the great diversity of actors in the possible future scenarios, e.g.\ partially overlapping networks involving trade, communications, and renewable energy, and across different regions or even countries.
 
-The functional requirements addressed in this report cover the core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the backend servers. The reason is to divide the development work into simpler stages rather than achieving the redesign of the full stack in one step. This is thanks to coreASIM acting as an interpreter of executable ASIM models, which can invoke interface object to a simplified user interface and to the backend. In this manner the high-level specification and requirements can be verified before the implementations of either the new front-end and backend are performed.
+The functional requirements addressed in this report cover the core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the backend servers. The reason is to divide the development work into simpler stages rather than achieving the redesign of the full stack in one step. This is thanks to CoreASIM acting as an interpreter of executable ASIM models, which can invoke interface object to a simplified user interface and to the backend. In this manner the high-level specification and requirements can be verified before the implementations of either the new front-end and backend are performed.
 
 \subsection{Requirements Overview}\label{_requirements_overview}
 The requirements have drifted over time due to two causes. First, the technology is changing very quickly, so what we envisaged in terms of technologies at the time of the proposal writing is now obsolete; second, the governance, economic, and financial model of Sardex is \emph{also} evolving, so the high-level requirements themselves have changed relative to a year ago. Therefore, the requirements below will be instantiated in a specific development strategy to be detailed later in this chapter.
@@ -106,50 +106,50 @@ R14 &State objects must be immutable: this is important in order to prevent peop
 \subsection{Stakeholders and their roles}\label{_stakeholders}
 
 \begin{itemize}
-	\item B ... Business
-	\item C ... Customer
-	\item E ... Employee	
+	\item B:  Business
+	\item C:  Consumer
+	\item E:  Employee	
 \end{itemize}
 
+{\small
 \begin{longtable}[]{@{}lll@{}}
 \toprule
 \begin{minipage}[b]{0.18\columnwidth}\raggedright\strut
 Role/Name\strut
-\end{minipage} & \begin{minipage}[b]{0.37\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.25\columnwidth}\raggedright\strut
 Contact\strut
-\end{minipage} & \begin{minipage}[b]{0.37\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.45\columnwidth}\raggedright\strut
 Expectations\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
 \begin{minipage}[t]{0.18\columnwidth}B2B \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Participating Companies \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Business to business transactions and interaction. Find other Sardex members, advertise its business inside the network, pay and receive from others members, manage its accounts.\end{minipage}
+\begin{minipage}[t]{0.25\columnwidth}Participating Companies \end{minipage} &
+\begin{minipage}[t]{0.45\columnwidth}Business-to-business transactions and interaction. Find other Sardex members, advertise its business inside the network, pay and receive credits from others members, manage its accounts.\end{minipage}
 \tabularnewline
 \tabularnewline
 \begin{minipage}[t]{0.18\columnwidth}B2E \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Employees \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Receive a part of his salary in Sardex credits (for example bonus, benefits, etc.). Find Sardex companies where she can spend her credits, manage her account, and spend her credits.\end{minipage}
+\begin{minipage}[t]{0.25\columnwidth}Employees of Sardex member companies\end{minipage} &
+\begin{minipage}[t]{0.45\columnwidth}Receive a part of his salary in Sardex credits (for example bonus, benefits, etc.). Find Sardex companies where she can spend her credits. Manage her account.\end{minipage}
 \tabularnewline
 \tabularnewline
 \begin{minipage}[t]{0.18\columnwidth}B2C \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Normal Customer \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Payments to Participating Companies. Find Sardex companies partecipating in the B2C program, receive credits as cash-back for payments in euros, spend her credits, and manage her account.\end{minipage}
+\begin{minipage}[t]{0.25\columnwidth}Generic Consumer \end{minipage} &
+\begin{minipage}[t]{0.45\columnwidth}Payments to Participating Companies. Find Sardex companies partecipating in the B2C programme, receive credits as cash-back for payments in Euros, spend her credits, and manage her account.\end{minipage}
 \tabularnewline
 \tabularnewline
 \begin{minipage}[t]{0.18\columnwidth}Sardex-Admin \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Sardex Employee \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Configuring and maintaining the infrastructure. Support members and admins with technical issues. Help members to collaborate and to close deals.\end{minipage}
+\begin{minipage}[t]{0.25\columnwidth}Sardex S.p.A.\ Employee \end{minipage} &
+\begin{minipage}[t]{0.45\columnwidth}Configure and maintain the infrastructure. Support members and admins with technical issues. Help members collaborate and close deals.\end{minipage}
 \tabularnewline
 \tabularnewline
 \begin{minipage}[t]{0.18\columnwidth}Sardex-Manager \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Sardex Employee \end{minipage} &
-\begin{minipage}[t]{0.37\columnwidth}Running evaluations and managing the cooperation platform. Monitoring daily/monthly/yearly metrics on transactions, members and monetary parameters. \end{minipage}
+\begin{minipage}[t]{0.25\columnwidth}Sardex S.p.A.\ Employee \end{minipage} &
+\begin{minipage}[t]{0.45\columnwidth}Run evaluations and manage the cooperation platform. Monitor daily/monthly/yearly metrics of transactions, members and monetary parameters. \end{minipage}
 \tabularnewline
-
-
 \bottomrule
 \end{longtable}
+}
 
 \section{Solution Strategy}\label{section-solution-strategy}
 The strategy of how to get from a monolithic working implementation to a decentralized and later a fully distributed ledger application is broken down in several steps, as outlined below.
@@ -161,7 +161,7 @@ Since the original ASMs work only in their own scope, it is not possible to crea
 This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs. The ICEF was developed in the STREP project BIOMICS which was financed by the European Comission in FP7 from October 1st, 2012 until March 31st, 2016. ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems. This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations.
 \end{quote}
 
-Although the additional language primitives offered by ICEF might not be needed, the coreASIM implementation will be crucial for realizing the INTERLACE strategy.
+Although the additional language primitives offered by ICEF might not be needed, the CoreASIM implementation will be crucial for realizing the INTERLACE strategy.
 
 \subsection{Strategy Steps}\label{subsection-strategy-steps}
 
@@ -169,10 +169,10 @@ Although the additional language primitives offered by ICEF might not be needed,
 \small
 \begin{enumerate}
 	\item Define the functional requirements of the business logic using the ASMs formal description language (this report).
-	\item Translate the formal description to a working demo environment using ICEF/coreASIM.
-	\item Connect the business logic modelled with ASMs and implemented in coreASIM to the real world. That means use the interaction capabilities of the framework to connect it to the existing legacy application used by SARDEX, Cyclos 4. This existing working architecture is summarized at a high level in Figure \ref{cyclosarchitecture}.
-	\item Test if the application and the translation to coreASIM work.
-	\item Translate the coreASIM implementation to a real-world application by creating e.g.\ a JAVA. application.
+	\item Translate the formal description to a working demo environment using ICEF/CoreASIM.
+	\item Connect the business logic modelled with ASMs and implemented in CoreASIM to the real world. That means use the interaction capabilities of the framework to connect it to the existing legacy application used by SARDEX, Cyclos 4. This existing working architecture is summarized at a high level in Figure \ref{cyclosarchitecture}.
+	\item Test if the application and the translation to CoreASIM work.
+	\item Translate the CoreASIM implementation to a real-world application by creating e.g.\ a JAVA. application.
 	\item Develop a verification strategy and validate the implemented real-world application through component testing.
 	\item Select appropriate blockchain technologies for the next-generation infrastructure.
 	\item Develop ASIM specifications that model the distributed environment.
@@ -187,7 +187,7 @@ Although the additional language primitives offered by ICEF might not be needed,
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=17.5cm]{Figures/3-Tier_Cyclos_Architecture}
-\caption{\small\textbf{Existing 3-tier Cyclos 4 architecture used by SARDEX, based on Amazon Web Services}}
+\caption{\small\textbf{Existing 3-tier Cyclos 4 architecture used by SARDEX, based on Amazon Web Services, and showing some of the levels of redundancy}}
 \label{cyclosarchitecture}
 \end{figure}
 
@@ -518,29 +518,6 @@ LCL
 Lightweight Cryptocurrency Ledger
 \strut
 \end{minipage}
-
-\tabularnewline\tabularnewline
-\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
-LCL
-\strut
-\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
-Lightweight Cryptocurrency Ledger
-\strut
-\end{minipage}\
-\tabularnewline\tabularnewline
-\begin{minipage}[t]{0.2\columnwidth}\raggedright\strut
-LCL
-\strut
-\end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
-Lightweight Cryptocurrency Ledger
-\strut
-\end{minipage}
-
-
-
-
-
-
 
 \tabularnewline
 \bottomrule
