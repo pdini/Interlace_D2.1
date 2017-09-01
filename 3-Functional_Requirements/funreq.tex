@@ -22,7 +22,7 @@ The actors of B2B operations are companies (elements of the set $Company$) which
 
 We keep the communication mechanism abstract. $\ASM{Send}(msg,\TO :a)$ denotes the operation of sending the $msg$ to agent $a$. 
 $Received(msg,\FROM :s)$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. Thus,
-the Ôfrom/to:Õ notation does not describe a function; it is used for the convenience of reading a rule where it only makes a parameter explicit that is used in the rule and anyway assumed to be part of the message in question.
+the ï¿½from/to:ï¿½ notation does not describe a function; it is used for the convenience of reading a rule where it only makes a parameter explicit that is used in the rule and anyway assumed to be part of the message in question.
 
 We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $\FROM :c$ in $Received(msg, \FROM :c)$ indicates that $sender(msg)=c$. Similarly, $\TO :c$ in $\ASM{Send}(msg, \TO :c)$ denotes that $receiver(msg) = c$.
 
