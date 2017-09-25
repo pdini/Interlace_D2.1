@@ -34,7 +34,7 @@ Rather than replicating the functionality of Cyclos 4 in a decentralized or dist
 
 From a purely functional point of view, Hyperledger enables a given node to belong to multiple blockchain networks. This is of interest to us because in the governance framework SARDEX is defining at least two units to be stored on the blockchain are envisaged: SRD credits and a new meritocratic reward points system called `Proximity', implemented with tokens that are earned through altruistic behaviour and dubbed `$\pi$'. Corda is interesting because it separates what Hyperledger calls `chaincode', which implements the smart contracts, from the persistence layer. Thus, Corda comes with a `business flow' layer that provides greater flexibility to adapt to the great diversity of actors in the possible future scenarios, e.g.\ partially overlapping networks involving trade, communications, and renewable energy, and across different regions or even countries.
 
-The functional requirements addressed in this report cover the core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the backend servers. The reason is to divide the development work into simpler stages rather than achieving the redesign of the full stack in one step. This is thanks to CoreASIM acting as an interpreter of executable ASIM models, which can invoke interface object to a simplified user interface and to the backend. In this manner the high-level specification and requirements can be verified before the implementations of either the new front-end and backend are performed.
+The functional requirements addressed in this report cover the core functionalities like credit and debit operations but exclude and intentionally hide implementation details about how transactions are actually processed on the backend servers. The reason is to divide the development work into simpler stages rather than achieving the redesign of the full stack in one step. This is possible thanks to CoreASIM acting as an interpreter of executable ASIM models, which can invoke interface object to a simplified user interface and to the backend. In this manner the high-level specification and requirements can be verified before the implementations of either the new front-end and backend are performed.
 
 \subsection{Requirements Overview}\label{_requirements_overview}
 The requirements have drifted over time due to two causes. First, the technology is changing very quickly, so what we envisaged in terms of technologies at the time of the proposal writing is now obsolete; second, the governance, economic, and financial model of Sardex is \emph{also} evolving, so the high-level requirements themselves have changed relative to a year ago. Therefore, the requirements below will be instantiated in a specific development strategy to be detailed later in this chapter.
@@ -76,7 +76,7 @@ R9 &Smart contracts code can be Turing-complete. The undecidability of Turing-co
 &\hspace{0.5cm}provability is refined along with the specifications as part of the iterative refinement process,\\
 &\hspace{0.5cm}down to the actual code.\\
 \hline
-R10 &Industry, Academia, NGO, non-profit, Social Movements\\
+R10 &Support the needs of Industry, Academia, NGOs, non-profits, Social Movements\\
 \hline
 R11 &Platform must involve the current regional MC systems and a reward and digital asset system called\\
 &\hspace{0.5cm}Proximity and whose unit of account is called $\pi$\\
@@ -102,13 +102,13 @@ R14 &State objects must be immutable: this is important in order to prevent peop
 \end{table}
 
 \subsection{Quality Goals}\label{_quality_goals}
-The new system will need to separate different functions that are needed in a circuit, such as transactions, search, ads, entities, and so forth, because they all have different SLAs. Therefore, a microservice architecture is the best approach.
+The new system will need to separate different functions that are needed in a circuit, such as transactions, search, ads, entities, and so forth, because they all have different service-level agreements (SLAs). Therefore, a microservice architecture is the best approach.
 
 In the current architecture definition process, it is also important to avoid dependencies on specific technologies. This is because we are in the middle of a rather chaotic period of innovation in payment technologies. This is over and above an even more intense period of innovation in the blockchain space, so we are talking about two layers of very fast-moving technological innovations that we need to keep abreast of. Thus, we must be clever in making the right choices and in leaving open the possibility for changes in the technology we ourselves develop.
 
-Open source is a great philosophy and it is responsible for an amazingly fast evolution in Information Technology, but there is a cost. The success of an open source project depens in large part on the ability of the project to enthuse potential contributors. Therefore, we must not forget that our work must be attractive to other passionate developers. Also, great open source software has great documentation. In summary, when we write code, we must act responsibly in using best practices, stardards, and white papers. This help whoever wants to contribute at the start, and will ultimately help everyone develop high-quality software.
+Open source is a great philosophy and it is responsible for an amazingly fast evolution in Information Technology, but there is a cost. The success of an open source project depends in large part on the ability of the project to enthuse potential contributors. Therefore, we must not forget that our work must be attractive to other passionate developers. Also, great open source software has great documentation. In summary, when we write code, we must act responsibly in using best practices, stardards, and white papers. This help whoever wants to contribute at the start, and will ultimately help everyone develop high-quality software.
 
-Stakeholder listed in the subsection \ref{_stakeholders} need to be sure that the Sardex S.p.A. ledger application is highly available and reliable in order to act as a proper mutual credit system. Here you will find a list of quality goals for the architecture whose fulfilment is of highest importance to the stakeholders:
+The stakeholders listed in Section \ref{_stakeholders} need to be sure that the Sardex S.p.A. ledger application is highly available and reliable in order to act as a proper mutual credit system. Here you will find a list of quality goals for the architecture whose fulfilment is of highest importance to the stakeholders:
 
 \begin{enumerate}
 	\item Highly decentralized architecture which can be developed to a fully distributed architecture.
@@ -118,6 +118,7 @@ Stakeholder listed in the subsection \ref{_stakeholders} need to be sure that th
 \end{enumerate} 
 
 \subsection{Stakeholders and their roles}\label{_stakeholders}
+Common abbreviations for circuit stakeholders are:
 \begin{itemize}
 	\item B:  Business
 	\item C:  Consumer
@@ -153,7 +154,7 @@ Expectations\strut
 \tabularnewline
 \begin{minipage}[t]{0.18\columnwidth}Sardex-Admin \end{minipage} &
 \begin{minipage}[t]{0.25\columnwidth}Sardex S.p.A.\ Employee \end{minipage} &
-\begin{minipage}[t]{0.45\columnwidth}Configure and maintain the infrastructure. Support members and admins with technical issues. Help members collaborate and close deals.\end{minipage}
+\begin{minipage}[t]{0.45\columnwidth}Configure and maintain the infrastructure. Support members and different kinds of Sardex admins (i.e.\ Brokers, Community Trade Advisors) with technical issues. Help members collaborate and close deals.\end{minipage}
 \tabularnewline
 \tabularnewline
 \begin{minipage}[t]{0.18\columnwidth}Sardex-Manager \end{minipage} &
@@ -172,7 +173,7 @@ Since the original ASMs work only in their own scope, it is not possible to crea
 \begin{quote}
 \small
 \vspace{-0.3cm}
-This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs. The ICEF was developed in the STREP project BIOMICS which was financed by the European Comission in FP7 from October 1st, 2012 until March 31st, 2016. ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems. This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations.
+This framework extends the original CoreASM modelling and execution framework to enable the specification and execution of \textbf{distributed and concurrent} ASMs. The ICEF was developed in the STREP project BIOMICS which was financed by the European Commission in FP7 from October 1st, 2012 until March 31st, 2016. ICEF enables asynchronous execution of ASMs. It uses and enhances the CoreASM execution engine to support communicating and interacting ASMs: CoreASIMs. Further, ICEF replaces ASM with BSL which offers additional language primitives specifically designed to define the beahviour of biochemical systems. This code introduces a restful API to control the BIOMICS wrapper (brapper) which can host several CoreASIM instances and enables networked CoreASIM. It also introduces a manager which orchestrates several ASIMs to allow the execution of interaction computing simulations.
 \end{quote}
 
 Although the additional language primitives offered by ICEF might not be needed, the CoreASIM implementation will be crucial for realizing the INTERLACE strategy.
@@ -207,7 +208,7 @@ The development strategy between now (M4) and the end of the project at M18 is a
 \label{cyclosarchitecture}
 \end{sidewaysfigure}
 
-
+Several decentralized and distributed models with dynamic growing and adaptive hierarchical network topologies from the BIOMICS project can be found in \cite{NehanivEtAl2015,BIOMICSD52} and proof-of-concept implementations using ASIMs are described in \cite{BIOMICSD52,Schrecklingetal2016}.
 
 
 
@@ -406,7 +407,7 @@ The development strategy between now (M4) and the end of the project at M18 is a
 %\subsection{Quality Scenarios}\label{_quality_scenarios}
 
 \section{Risks and Technical Debts}\label{section-technical-risks}
-The risks in the present development effort are mainly associated with the selection and adoption of a suitable blockchain framework. There number of open source frameworks to choose from is large and continues to grow. As the economic, financial, and governance framework converges to a stable model that is approved and accepted by the main stakeholders of the Sardex circuit, we will need to choose a suitable permissioned blockchain\footnote{Or similar, i.e.\ \url{https://wordix.inesctec.pt/wp-lightkone/wp-content/uploads/2017/07/lightkone-intro.pdf}} for the infrastructure, and at this point there is some uncertainty as to which is the best choice.
+The risks in the present development effort are mainly associated with the selection and adoption of a suitable blockchain framework. The number of open source frameworks to choose from is large and continues to grow. As the economic, financial, and governance framework converges to a stable model that is approved and accepted by the main stakeholders of the Sardex circuit, we will need to choose a suitable permissioned blockchain\footnote{Or similar, i.e.\ \url{https://wordix.inesctec.pt/wp-lightkone/wp-content/uploads/2017/07/lightkone-intro.pdf}} for the infrastructure, and at this point there is some uncertainty as to which is the best choice.
 
 Another risk comes from the fact that the INTERLACE project has a small budget and cannot fund the whole development effort. Thus, a significant part of the work will need to be funded by SARDEX directly and/or by its partners. This issue will become more pressing towards the end of the first year of the project.
 
@@ -478,7 +479,7 @@ Original distributed architecture of the blockchain (e.g.\ Bitcoin, Ethereum, et
 Abstract State Machines (ASMs)
 \strut
 \end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
-Specification method that allows the definition of data structures that closely model the domain of interest, at the most appropriate level of abstraction, and with the required behaviour. Thus, the data structure concept includes also the definition of functions that operate on an ASM's data structure, thereby changing its state. Since ASMs are rigorously defined and executable (interpretable) they can be used to define executable models that can be used to verify the requirements and validate the model. Conceptually, ASMs can be thought of as analogous to finite-state machines, i.e.\ to a form of generalized automata. In the most general and abstract terms, ASMs can be thought of as a method to develop a customized programming language for a specific problem.
+Specification method that allows the definition of data structures that closely model the domain of interest, at the most appropriate level of abstraction, and with the required behaviour. Thus, the data structure concept includes also the definition of functions that operate on an ASM's data structure, thereby changing its state. Since ASMs are rigorously defined and executable (interpretable) they can be used to define executable models that can be used to verify the requirements and validate models. Conceptually, ASMs can be thought of as analogous to finite-state machines, i.e.\ to a form of generalized automata. In the most general and abstract terms, ASMs can be thought of as a method to develop a customized programming language for a specific problem.
 \strut
 \end{minipage}
 
@@ -487,7 +488,7 @@ Specification method that allows the definition of data structures that closely 
 Abstract State Interaction Machines (ASIMs)
 \strut
 \end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
-Extension of the ASM modelling framework to allow communication between different ASMs. ASIMs are ASMs that are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction. They can therefore be used to model an anynchronous, concurrent, distributed system.
+Extension of the ASM modelling framework to allow communication between different ASMs. ASIMs are ASMs that are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction, while supporting dynamically changing adaptive network topology. They can therefore be used to model an anynchronous, concurrent, distributed system with growing and changing structure.
 \strut
 \end{minipage}
 
@@ -505,7 +506,7 @@ Extension of the CoreASM execution environment for ASMs.
 Mutual Credit
 \strut
 \end{minipage} & \begin{minipage}[t]{0.77\columnwidth}\raggedright\strut
-A type of currency that structurally highlights the nature of money as a social relation of credit and debt. It is sometimes called `multilater barter', but this is not correct. While -- like all currencies -- mutual credit does enable multilater exchange, it does not preclude profit margins, which are not easily quantified in barter. As credits perform the functions of medium of exchange, unit of account, store of value (across time), and means of payment (although they are not usually accepted for tax payments), they are a form of money.
+A type of currency that structurally highlights the nature of money as a social relation of credit and debt. It is sometimes called `multilateral barter', but this is not correct. While -- like all currencies -- mutual credit does enable multilateral exchange, it does not preclude profit margins, which are not easily quantified in barter. As credits perform the functions of medium of exchange, unit of account, store of value (across time), and means of payment (although they are not usually accepted for tax payments), they are a form of money.
 \strut
 \end{minipage}
 
