@@ -24,7 +24,7 @@ We keep the communication mechanism abstract. $\ASM{Send}(msg,\TO :a)$ denotes t
 
 We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $\FROM :c$ in $Received(msg, \FROM :c)$ indicates that $sender(msg)=c$. Similarly, $\TO :c$ in $\ASM{Send}(msg, \TO :c)$ denotes that $receiver(msg) = c$.
 
-The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} Each such company may have a number of $acc$ounts\footnote{A company can have at most an account for each account type.} which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:\footnote{A credit account is a normal account that can have a positive or negative credits balance. A domu account is designed to accumulate credits in support of larger real estate transactions (domum = home in Latin). A fee account is ...}
+The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} Each such company may have a number of $acc$ounts\footnote{A company can have at most an account for each account type.} which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:\footnote{A credit account is a normal account that can have a positive or negative credits balance. A domu account is designed to allow the spending of credits for a mid/long-term investment -- usually, but not always, to acquire buildings. Therefore, it can reach a relatively large negative balance, within the limit permitted by the credit line of the account. A fee account always has a positive credit balance, like a pre-paid card, and services available through a fee account incur a commission fee.}
 
 \begin{asm}
 AccountType=\{credit, domu, fee\} \\
@@ -34,8 +34,7 @@ Therefore we name such accounts $creditAccount(c)$, $domuAccount(c)$, $feeAccoun
 
 There are two principal transfer operations, called Credit and Debit operation specified in Sec.~\ref{sec:creditop} and Sec.~\ref{sec:debitop}.
 
-\textcolor{red}{\textbf{Message from Chrystopher:}\\
-A security issue arises (especially in a decentralized or distributed setting):  What if sender(msg), receiver(msg), or msg is faked? There should be something about  such security issues mentioned, but perhaps in the requirements section.}
+At this stage of the specification we have not yet addressed security issues. For example, $sender(msg)$, $receiver(msg)$, or $msg$ could be faked. Security will be addressed when we start specifying and modelling the distributed transactional platform. Any implications to the business logic models documented here will be examined at that time.
 
 
 \subsection{Sardex Behaviour for Credit Operations}
