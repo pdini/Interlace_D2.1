@@ -8,23 +8,23 @@ Egon B\"orger, Luca Carboni, Massimo Cireddu, Paolo Dini, Eduard Hirsch, Giusepp
 \end{center}
 
 
-We specify the core payment and related history operations of the Sardex system. We do this at the functional requirements  level of abstraction and in a component-based manner so that the resulting model can serve as abstract description of the current implementation but also as starting point for a new, blockchain-based implementation. Sect.~\ref{sect:paymtops} models  two basic payment operations, Sect.~\ref{sect:accHistory} account history and balance operations, Sect.~\ref{sect:userops} user operations. Permission features and onboarding operations will be modelled in the near future and reported on in the next deliverable (D2.2).
+We specify the core payment and related history operations of the INTERLACE network server, which as a starting point reproduce those of the current Sardex system. We do this at the functional requirements  level of abstraction and in a component-based manner so that the resulting model can serve as abstract description of the current implementation but also as starting point for a new, blockchain-based implementation. Sect.~\ref{sect:paymtops} models  two basic payment operations, Sect.~\ref{sect:accHistory} account history and balance operations, Sect.~\ref{sect:userops} user operations. Permission features and onboarding operations will be modelled in the near future and reported on in the next deliverable (D2.2).
 
 
 \section{Core Payment Operations}
 \label{sect:paymtops}
 
-In this section we describe the interaction of the Sardex system (also called simply Sardex)  with users. We consider here only B2B operations, leaving the consideration of operations between a $Company$ and either $Employee$s or $Consumer$s for a later phase. Sect.~\ref{signaturepaymtop} explains the basic data types,  Sect.~\ref{sec:creditop} the credit and  Sect.~\ref{sec:debitop} the debit operation.
+In this section we describe the interaction of the INTERLACE network server with users. We consider here only B2B operations, leaving the consideration of operations between a $Company$ and either $Employee$s or $Consumer$s for a later phase. Sect.~\ref{signaturepaymtop} explains the basic data types,  Sect.~\ref{sec:creditop} the credit and  Sect.~\ref{sec:debitop} the debit operation.
 
 \subsection{Signature elements of B2B Operations}
 \label{signaturepaymtop}
-The actors of B2B operations are companies (elements of the set $Company$) which interact with the Sardex system on a request/response basis using various communication devices from whose technical details we abstract here. Therefore it becomes natural to describe the interaction of companies with the Sardex system by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction as well as dynamic creation and reabsorption of components. These features have been defined to satisfy the requirements of Interaction Computing formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the definition of the communication network structure, using channels and a routing component, and a resource manager by specialized communicating ASMs) and the implementation see \url{https://github.com/biomics/icef}.}, one for each participating company and one for Sardex.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the Sardex system performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
+The actors of B2B operations are companies (elements of the set $Company$) which interact with the INTERLACE network server on a request/response basis using various communication devices from whose technical details we abstract here. Therefore it becomes natural to describe the interaction of companies with the INTERLACE network server by $\ASM{Send}$ and $\ASM{Receive}$ actions of communicating Abstract State Machines (ASMs), the basic concept underlying Abstract State Interaction Machines (ASIMs)\footnote{ASIMs are communicating ASMs which are equipped with a general scheduling mechanism and an interaction structure to distinguish between horizontal and hierarchical interaction as well as dynamic creation and reabsorption of components. These features have been defined to satisfy the requirements of Interaction Computing formulated in Deliverable 5.1 of the BIOMICS project  \cite{BIOMICSD51}; these requirements have been shown to be satisfied by ASIMs (see Ch.\ 2 of Deliverable D5.2 \cite{BIOMICSD52}). For further details (in particular on the definition of the communication network structure, using channels and a routing component, and a resource manager by specialized communicating ASMs) and the implementation see \url{https://github.com/biomics/icef}.}, one for each participating company and one for the INTERLACE network server.\footnote{Observe that in a distributed version of the Sardex system different instances of the system are run by different agents which all execute the same ASM program (or a program that has been obtained by adapting the basic program appropriately for a particular instance). Cyclos today is loosely coupled in the sense that one can have multiple applications running on multiple machines that share consistency with third-party utilities.} We concentrate our attention in this section on modelling the actions the INTERLACE network server performs when triggered by requests sent to it by any company of the circuit (which are treated in Sec.~\ref{sect:userops}).
 
 We keep the communication mechanism abstract. $\ASM{Send}(msg,\TO :a)$ denotes the operation of sending the $msg$ to agent $a$. $Received(msg,\FROM :s)$ is a predicate which is true when the message $msg$ from the sender $s$ is in the $mailbox$ of the receiver. $\ASM{Consume}(msg)$ denotes the operation of deleting the $msg$ from the $mailbox$ once it has been processed. Note that the \textbf{from:}/\textbf{to:} notation does not describe a function and should be seen as something closer to a comment; it is used for the convenience of reading a rule where it only makes a parameter explicit that is used in the rule and anyway assumed to be part of the message in question.
 
 We usually assume  each $msg \in Message$ to contain besides its $payload(msg)$ also the information about its $sender(msg)$ and $receiver(msg)$. Thus the parameter $\FROM :c$ in $Received(msg, \FROM :c)$ indicates that $sender(msg)=c$. Similarly, $\TO :c$ in $\ASM{Send}(msg, \TO :c)$ denotes that $receiver(msg) = c$.
 
-The core payment operations are sent to Sardex by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} Each such company may have a number of $acc$ounts\footnote{A company can have at most an account for each account type.} which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:\footnote{A credit account is a normal account that can have a positive or negative credits balance. A domu account is designed to allow the spending of credits for a mid/long-term investment -- usually, but not always, to acquire buildings. Therefore, it can reach a relatively large negative balance, within the limit permitted by the credit line of the account. A fee account always has a positive credit balance, like a pre-paid card, and its balance is used to purchase one-off services, fixed-fee subscription services, or to pay for fee-based services whose fees are a percentage of their cost.}
+The core payment operations are sent to the INTERLACE network server by companies $c \in SardexNet$ which are members of the net.\footnote{We use for the datatypes evocative names which suggest their intended interpretation.} Each such company may have a number of $acc$ounts\footnote{A company can have at most an account for each account type.} which we represent as elements of a set $Account(c)$. Each $acc$ount has a well-defined $owner(acc) \in SardexNet$ and is of some type $accountType(acc)$ out of the set $AccountType$ of possible account types:\footnote{A credit account is a normal account that can have a positive or negative credits balance. A domu account is designed to allow the spending of credits for a mid/long-term investment -- usually, but not always, to acquire buildings. Therefore, it can reach a relatively large negative balance, within the limit permitted by the credit line of the account. A fee account always has a positive credit balance, like a pre-paid card, and its balance is used to purchase one-off services, fixed-fee subscription services, or to pay for fees associated with fee-based transactions paid for from a \emph{different} account (e.g.\ a credit account) held by the same user (although transactions between users belonging to the same circuit do not incur a fee, inter-circuit transactions do).}
 
 \begin{asm}
 AccountType=\{credit, domu, fee\} \\
@@ -37,13 +37,13 @@ There are two principal transfer operations, called Credit and Debit operation s
 At this stage of the specification we have not yet addressed security issues. For example, $sender(msg)$, $receiver(msg)$, or $msg$ could be faked. Security will be addressed when we start specifying and modelling the distributed transactional platform. Any implications to the business logic models documented here will be examined at that time.
 
 
-\subsection{Sardex Behaviour for Credit Operations}
+\subsection{Behaviour for Credit Operations}
 \label{sec:creditop}
 
 A Credit operation is also called a push transfer. Its goal is to transfer an $amount$ via a specific $channel$ from one account to another. Sardex uses a $TransferType$ concept which allows one to impose on the transfer operations certain conditions, including priorities. The parameters of a transfer type $tt$ which are relevant for the Sardex business logic are the following:\footnote{The implementation in Cyclos has more parameters we do not consider here.}
 \begin{itemize}
 	\item the $operation \in \{credit, debit\}$,
-	\item the $channel \in \{phone,website,pos\}$\footnote{$pos$ abbreviates ``point of sale''.} through which the interaction between the user and Sardex takes place,
+	\item the $channel \in \{phone,website,pos\}$\footnote{$pos$ abbreviates ``point of sale''.} through which the interaction between the user and the INTERLACE network server takes place,
 	\item the account type of the two involved accounts $from,to \in Account$,
 	\item the groups of the two members involved: $fromMbrGroup,toMbrGroup \in Group$,
 	\item conditions on the to-be-transferred $amount$, 
@@ -80,7 +80,7 @@ We denote this unique $tt$ as the value of the function $tt(operation,acc,acc',c
 \end{quote}
 
 
-Both payment operations Credit and Debit are instances of a request/response pattern with two phases, a first phase whose action is called Preview -- where only the permission for the transfer is checked (using a $transferTypeCheck$ function) but not the requested amount -- and  a second phase whose action is called Perform where also the amount is checked (using a $balanceCheck$ function). On the user side both actions are treated as stateless, on the Sardex system side only the Preview action is stateless. Here we make the -- for the user stateless -- two-phase interaction explicit by using two  types of user requests, say $CreditPreviewReq$ and $CreditPerformReq$, with corresponding Sardex rules $\ASM{CreditPreviewReq}$ and $\ASM{CreditPerformReq}$ to react to such requests. The user first sends a $CreditPreviewReq$uest and upon the positive system response the corresponding $CreditPerformReq$uest. Sardex can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whose execution depends only on the parameters with which they are called. But for one successful credit request instance the two rules can be executed only in the indicated order, due to the intrinsic sequentiality of the two steps for the request.
+Both payment operations Credit and Debit are instances of a request/response pattern with two phases, a first phase whose action is called Preview -- where only the permission for the transfer is checked (using a $transferTypeCheck$ function) but not the requested amount -- and  a second phase whose action is called Perform where also the amount is checked (using a $balanceCheck$ function). On the user side both actions are treated as stateless, on the INTERLACE network server side only the Preview action is stateless. Here we make the -- for the user stateless -- two-phase interaction explicit by using two  types of user requests, say $CreditPreviewReq$ and $CreditPerformReq$, with corresponding Sardex rules $\ASM{CreditPreviewReq}$ and $\ASM{CreditPerformReq}$ to react to such requests. The user first sends a $CreditPreviewReq$uest and upon the positive system response the corresponding $CreditPerformReq$uest. The INTERLACE network server can execute at any moment any of its $\ASM{CreditTransferReq}$ rules whose execution depends only on the parameters with which they are called. But for one successful credit request instance the two rules can be executed only in the indicated order, due to the intrinsic sequentiality of the two steps for the request.
 
 {\bf Remark}. In the $\ASM{CreditTransferReq}$ model we assume that its access to the two accounts $from, to$ is exclusive. This assumption plays the role of a constraint for the implementation and thus is an essential part of the specification. We do not model the corresponding synchronization mechanism (which guarantees the assumption) because its functionality is clear and it is well-known how to program it. 
 
@@ -121,13 +121,11 @@ Match(tt,transfer) \IF \+
 \end{asm}
 
 
-The $Match$ predicate is extended in Sec.~\ref{sec:debitop} for the first transfer parameter $debit$ (instead of $credit$).\footnote{This is the reason why the definition here considers only the $\IF$ case instead of stating $\IFF$.} The set of possible $TransferTypeError$s can be defined for the various cases of interest where
-the $Match(tt,transfer)$ condition is violated for whatever $tt \in TransferType$.
+The $Match$ predicate is extended in Sec.~\ref{sec:debitop} for the first transfer parameter $debit$ (instead of $credit$).\footnote{This is the reason why the definition here considers only the $\IF$ case instead of stating $\IFF$.} The set of possible $TransferTypeError$s can be defined for the various cases of interest where the $Match(tt,transfer)$ condition is violated for whatever $tt \in TransferType$.
 
+Since the network server when responding to a $CreditPreviewReq$uest does not record the data (due to the requirement of the stateless Preview response character), when elaborating a $CreditPerformReq$uest the system in a first step must redo the $transferTypeCheck$. In the case of a positive check result, as part of the $transaction$ which is added to the $Ledger$, besides the $transfer$ parameters also the computed transfer type is recorded together with the transfer date (which is computed by the system as value of a location, say $today$, when the credit request is performed). The function $transaction$ denotes the final transaction corresponding to the given $transfer$, its date and transfer type. 
 
-Since Sardex when responding to a $CreditPreviewReq$uest does not record the data (due to the requirement of the stateless Preview response character), when elaborating a $CreditPerformReq$uest the system in a first step must redo the $transferTypeCheck$. In the case of a positive check result, as part of the $transaction$ which is added to the $Ledger$, besides the $transfer$ parameters also the computed transfer type is recorded together with the transfer date (which is computed by the system as value of a location, say $today$, when the credit request is performed). The function $transaction$ denotes the final transaction corresponding to the given $transfer$, its date and transfer type. 
-
-To formulate error conditions for the $balanceCheck$ we need a function $availBalance(acc)$ which yields the amount of money that is currently available in the $acc$ to be spent. It is defined together with the related current balance function $balance(acc)$ in Sect.~\ref{sect:accHistory}. $Receivable(amount,acc)$ checks whether the destination of the transfer by receiving the $amount$ would exceed its upper Sardex limit $upperLimit(acc)$.
+To formulate error conditions for the $balanceCheck$ we need a function $availBalance(acc)$ which yields the amount of money that is currently available in the $acc$ to be spent. It is defined together with the related current balance function $balance(acc)$ in Sect.~\ref{sect:accHistory}. $Receivable(amount,acc)$ checks whether the destination of the transfer by receiving the $amount$ would exceed its upper credit limit $upperLimit(acc)$.
 
 
 \begin{asm}
@@ -158,12 +156,12 @@ ViolatesUpperLimit(to,amount) \IF ~\NOT Receivable(amount,to) \\
 
 
 
-\subsection{Sardex Behaviour for Debit Operations}
+\subsection{Behaviour for Debit Operations}
 \label{sec:debitop}
 
-In the Sardex business logic also a Debit transfer can be performed but only between accounts of type $credit$ (neither $domu$ nor $fee$). Since any Sardex member $c \in SardexNet$ can be $owner$ of at most one account of type $credit$, Debit transfers are formulated as being performed among members $creditor,debitor$. Sardex accepts a $DebitPreviewReq$uest and a  $DebitPerformReq$uest from a $creditor$, using two corresponding rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ Sardex uses to interact with the $creditor$.  $DebitPerformReq$uests are executed using a request/response interaction between the system and the $debitor$. The $debitor$ has to allow the transfer by acknowledging a $ConfirmationReq$uest Sardex sends out; only when the debit transfer has been permitted by an acknowledgement from the $debitor$ will Sardex execute the transfer using a third rule called $\ASM{DebitAckExec}$ution. 
+In the Sardex business logic also a Debit transfer can be performed but only between accounts of type $credit$ (neither $domu$ nor $fee$). Since any Sardex member $c \in SardexNet$ can be $owner$ of at most one account of type $credit$, Debit transfers are formulated as being performed among members $creditor,debitor$. The INTERLACE network server accepts a $DebitPreviewReq$uest and a $DebitPerformReq$uest from a $creditor$, using two corresponding rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ that it uses to interact with the $creditor$. $DebitPerformReq$uests are executed using a request/response interaction between the system and the $debitor$. The $debitor$ has to allow the transfer by acknowledging a $ConfirmationReq$uest that the INTERLACE network server sends out; only when the debit transfer has been permitted by an acknowledgement from the $debitor$ will the INTERLACE network server execute the transfer using a third rule called $\ASM{DebitAckExec}$ution. 
 
-Sardex can execute at any moment any of these rules whose execution depends only on the parameters with which they are called. But for one successful debit $request$ instance the three rules can be executed only in the indicated order, due to the intrinsic sequentiality of the three steps for the $request$.
+The INTERLACE network server can execute at any moment any of these rules whose execution depends only on the parameters with which they are called. But for one successful debit $request$ instance the three rules can be executed only in the indicated order, due to the intrinsic sequentiality of the three steps for the $request$.
 
 {\bf Remark}. As for $\ASM{CreditTransferReq}$ also in the $\ASM{DebitTransferReq}$ model we assume that the access to the two accounts $from, to$ is exclusive (synchronization constraint). 
 
@@ -258,9 +256,7 @@ Small(amount) \mbox{ iff } amount<100\\
 Expired(otp) \IFF now-birthtime(otp) > lifetimeForOTPs
 \end{asm}
 
-In case the $debitor$ does not confirm the Debit request 
-within the $lifetime$ forseen for OTPs,
-Sardex will reject the $DebitPerformReq$ (by changing its status to $rejected$) and inform the $creditor$ about it.
+In case the $debitor$ does not confirm the Debit request  within the $lifetime$ forseen for OTPs, the INTERLACE network server will reject the $DebitPerformReq$ (by changing its status to $rejected$) and inform the $creditor$ about it.
 
 \begin{asm}  
  \ASM{DebitRejectExec} =\+           
@@ -284,7 +280,7 @@ Remark. Up to now request/response pattern time issues are not formulated in the
 \section{Account History and Balance Operations}
 \label{sect:accHistory}
 
-The Sardex system accepts from every business member $c \in SardexNet$ an account history request for any of its accounts, i.e. the elements of  the set $Account(c)$. As parameters of such a request the member can indicate besides the $acc$ount also 
+The INTERLACE system accepts from every business member $c \in SardexNet$ an account history request for any of its accounts, i.e. the elements of  the set $Account(c)$. As parameters of such a request the member can indicate besides the $acc$ount also 
 the $period \in Period$ for which the history is requested, the counterparty (an 
 element of the set $CounterParty(c)$  of accounts allowed to be accessed by the 
 member for a transfer), and/or the amount range in the set $AmountRange$ of allowed 
@@ -313,8 +309,7 @@ For to-be-reported transactions $date(t)$ must be within the indicated $period$.
 
 
 
-The Sardex system answers an $AccountHistReq$est by sending back to the requestor 
-either an error message -- in case the requestor is not a member of the circuit or 
+The INTERLACE network server answers an $AccountHistReq$est by sending back to the requestor either an error message -- in case the requestor is not a member of the circuit or 
 the indicated account is not one of its accounts -- or the set $T$ of transactions 
 which satisfy the above-indicated properties. This is specified by the following ASM rule.
 
@@ -333,9 +328,9 @@ which satisfy the above-indicated properties. This is specified by the following
      \ASM{Consume}(AccountHistReq(acc, period, counterPty, amountRange, custField))
 \end{asm}
 
-In a similar way, one can specify the behaviour of Sardex when it receives a $BalanceReq$uest, namely to compute the current $balance$ of the requestor's account. This computation calculates the sum of the amounts of each received transfer and detracts from it the sum of the amounts of each sent transfer.
+In a similar way, one can specify the behaviour of the INTERLACE network server when it receives a $BalanceReq$uest, namely to compute the current $balance$ of the requestor's account. This computation calculates the sum of the amounts of each received transfer and detracts from it the sum of the amounts of each sent transfer.
 
-In addition, we forsee that, for performance and database management reasons, from time to time the system issues a $certifiedBal$ance. Therefore to calculate the current $balance(acc)$, starting with the last $certifiedBal$ance of this $acc$ount, only those transactions need to be considered whose $date$ is after the last $balanceCertificationDate(acc)$, a dynamic location the system updates to the system time $now$ each time it updates the value of the location $certifiedBal(acc)$. This is expressed by the following ASM rule:
+In addition, we foresee that, for performance and database management reasons, from time to time the system issues a $certifiedBal$ance. Therefore to calculate the current $balance(acc)$, starting with the last $certifiedBal$ance of this $acc$ount, only those transactions need to be considered whose $date$ is after the last $balanceCertificationDate(acc)$, a dynamic location the system updates to the system time $now$ each time it updates the value of the location $certifiedBal(acc)$. This is expressed by the following ASM rule:
 
 \begin{asm}
 \ASM{BalanceReq}=\+
@@ -368,9 +363,9 @@ $availBalance$ is an example of a derived function, i.e. a dynamic function with
 \section{User Operations}
 \label{sect:userops}
 
-Users can $\ASM{Send}$ requests which appear as input for the Sardex system. To $\ASM{Send}(CreditPreviewReq(transfer))$ or to $\ASM{Send}(DebitPreviewReq(transfer))$ is conditioned only by a correct definition of the $transfer$ parameter, definition the user supplies by filling in the corresponding  fields on the screen. The same holds mutatis mutandis for $\ASM{Send}(AccountHistReq(histParams))$ and $\ASM{Send}(BalanceReq(acc))$. The functionality is clear so that we do not model further this editing process.
+Users can $\ASM{Send}$ requests which appear as input for the INTERLACE network server. To\\ $\ASM{Send}(CreditPreviewReq(transfer))$ or to $\ASM{Send}(DebitPreviewReq(transfer))$ is conditioned only by a correct definition of the $transfer$ parameter, definition the user supplies by filling in the corresponding  fields on the screen. The same holds mutatis mutandis for $\ASM{Send}(AccountHistReq(histParams))$ and $\ASM{Send}(BalanceReq(acc))$. The functionality is clear so that we do not model further this editing process.
 
-For Credit/Debit Perform requests the only relevant additional constraint is that they can be sent only after an ok-message for the corresponding Preview request has been received. We use a function $kind$ to extract from a $transfer$ parameter its $credit$ resp. $debit$ component.
+For Credit/Debit Perform requests the only relevant additional constraint is that they can be sent only after an ok-message for the corresponding Preview request has been received. We use a function $kind$ to extract from a $transfer$ parameter its $credit$ resp. $debit$ component.\footnote{In the following ASMs the keyword `sardex' stands for `INTERLACE network server'.}
 
 \begin{asm}
 \IF Received(YouMayProceedWith(transfer),\FROM :sardex) \THEN \+
@@ -381,7 +376,7 @@ For Credit/Debit Perform requests the only relevant additional constraint is tha
 \ASM{Consume}(YouMayProceedWith(transfer))
 \end{asm}
 
-In case of a Debit operation a debitor has to confirm a received debit request by $\ASM{Send}$ing a $DebitAckMsg$; otherwise a $DebitRejectMsg$ is sent to the Sardex system.
+In case of a Debit operation a debitor has to confirm a received debit request by $\ASM{Send}$ing a $DebitAckMsg$; otherwise a $DebitRejectMsg$ is sent to the INTERLACE network server.
 \begin{asm}
 \IF Received(ConfirmationReq(amount,creditor,otp),\FROM :sardex) \THEN \+
    \IF Agreed(amount,creditor,otp)\+
