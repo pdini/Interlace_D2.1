@@ -132,7 +132,7 @@ We define the two core functions $transferType\textcolor{red}{Exstn}Check$ and $
 \ASM{CreditPreviewReq}((channel,from,to,amount,custFlds),mbr)  =\+
   \IF  Received(CreditPreviewReq
         (credit,channel,from,to,amount,custFlds),\FROM :mbr) \THEN \+  
-    \LET transfer = (credit,cshannel,from,to,amount,custFlds) \\
+    \LET transfer = (credit, channel, from, to, amount, custFlds) \\
     \LET \textcolor{red}{ttResult} = transferType\textcolor{red}{Exstn}Check(transfer)  \+
       \IF \textcolor{red}{ttResult} \not \in TransferType \THEN \+   
          \ASM{Send}(ErrMsg(NotPermitted(transfer,\textcolor{red}{ttResult})),\TO :mbr)\-
