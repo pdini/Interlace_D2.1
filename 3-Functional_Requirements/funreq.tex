@@ -205,9 +205,14 @@ To formulate error conditions for the $balanceCheck$ we need a function $availBa
 \WHERE \+
 balanceCheck(from, to, amount) \in \{OK\} 
                   \cup Powerset(BalanceViolation)\\
+%%%%%%%%%%%%%%%%% (2018/04/14) Paolo
+\textcolor{blue}{ 
 balanceCheck(from, to, amount) = OK \IFF 
-         amountCond(\textcolor{red}{ttResult})(amount) =true \AND \+
-         availBalance(from) \geq amount  \AND Receivable(amount,to)\-
+%         amountCond(\textcolor{red}{ttResult})(amount) = true \AND \+
+         availBalance(from) \geq amount} \+
+\textcolor{blue}{
+         \AND Receivable(amount,to)} \-
+%%%%%%%%%%%%%%%%% (2018/04/14) Paolo
 ViolatesAmountCond(amount) \IF  amountCond(\textcolor{red}{ttResult})(amount) = false \\
 ViolatesLowerLimit(from,amount) \IF availBalance(from) < amount \\
 ViolatesUpperLimit(to,amount) \IF ~\NOT Receivable(amount,to) \\
@@ -252,7 +257,11 @@ Both rules $\ASM{DebitPreviewReq}$ and $\ASM{DebitPerformReq}$ in their first st
 \ASM{DebitPreviewReq}((debitor,channel,amount,custFlds),creditor)=\+
   \IF Received(DebitPreviewReq(debitor,channel,amount,custFlds),
                    \FROM :creditor) \THEN \+  
-     \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
+%%%%%%%%%%%%%%%%% (2018/04/14) Paolo
+%     \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
+\textcolor{blue}{ 
+     \LET from=creditAccount(debitor), to=creditAccount(creditor)} \\
+%%%%%%%%%%%%%%%%% (2018/04/14) Paolo
      \LET transfer=(debit,channel,from,to,amount,custFlds)\\  
      \LET \textcolor{red}{ttResult}=transferType\textcolor{red}{Exstn}Check(transfer) \+
         \IF \textcolor{red}{ttResult} \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,\textcolor{red}{ttResult})),\TO :creditor)\-
@@ -276,7 +285,11 @@ If the $transferType\textcolor{red}{Exstn}Check$ in a $ \ASM{DebitPerformReq}$ue
 \ASM{DebitPerformReq}((debitor,channel,amount,custFlds),creditor)=\+
 \IF  Received(DebitPerformReq(debitor,channel,amount,custFlds),
                  \FROM :creditor) \THEN \+     
-  \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
+%%%%%%%%%%%%%%%%% (2018/04/14) Paolo
+%     \LET from=creditAccount(creditor), to=creditAccount(debitor)\\
+\textcolor{blue}{ 
+     \LET from=creditAccount(debitor), to=creditAccount(creditor)} \\
+%%%%%%%%%%%%%%%%% (2018/04/14) Paolo
   \LET transfer=(debit,channel,from,to,amount,custFlds) \\
   \LET \textcolor{red}{ttResult}=transferType\textcolor{red}{Exstn}Check(transfer) \+
         \IF \textcolor{red}{ttResult} \not \in TransferType \THEN \+    \ASM{Send}(ErrMsg(NotPermitted(transfer,\textcolor{red}{ttResult})),\TO :creditor)\-
